@@ -4,8 +4,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.javabot.commands.managers.CommandListener;
-import org.javabot.commands.managers.CommandManager;
+import org.javabot.commands.Listeners.CommandListener;
+import org.javabot.commands.Listeners.VoiceListener;
+import org.javabot.commands.Managers.CommandManager;
 
 import java.util.EnumSet;
 
@@ -24,9 +25,8 @@ public class Main {
                         EnumSet.allOf(GatewayIntent.class)
 
                 )
-                .addEventListeners(new CommandListener())
+                .addEventListeners(new CommandListener(), new VoiceListener())
                 .build();
 
     }
 }
-

@@ -1,4 +1,4 @@
-package org.javabot.commands.managers;
+package org.javabot.commands.Managers;
 
 import org.javabot.commands.Commands;
 import org.reflections.Reflections;
