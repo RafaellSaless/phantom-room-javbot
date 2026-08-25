@@ -63,6 +63,30 @@ public class ConfigScheduleCommand extends Commands {
 
         var channel = event.getGuild().getTextChannelById(canalIdInput);
 
+        if (channel != null) {
+            canalId = arg;
+
+            // Pega o ID do servidor atual
+            String guildId = event.getGuild().getId();
+
+            // "chatvozid" or "chattextid"
+            org.javabot.commands.Managers.ConfigManager.salvarConfig(guildId, "chattextid", canalId);
+
+            EmbedBuilder canalConfigurad = new EmbedBuilder();
+            canalConfigurad.setColor(Color.green);
+            canalConfigurad.setTitle("⚡ !configschedule");
+            canalConfigurad.addField("Canal Configurado:", "<#" + canalId + ">", true);
+
+            event.getChannel()
+                    .sendMessageEmbeds(canalConfigurad.build())
+                    .queue();
+        } else {
+            event.getChannel()
+                    .sendMessageEmbeds(canalInvalido.build())
+                    .queue();
+        }
+        canalId = "1";
+
 
     }
 }

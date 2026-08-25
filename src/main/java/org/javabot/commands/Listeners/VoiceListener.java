@@ -17,7 +17,7 @@ public class VoiceListener extends ListenerAdapter {
             long canalEntradoId = event.getChannelJoined().getIdLong();
 
             String canalConfiguradoId =
-                    ConfigManager.getCanalDoServidor(guildId);
+                    ConfigManager.getCanalDoServidor(guildId, "chatvozid");
 
             if (canalConfiguradoId != null &&
                     canalConfiguradoId.equals(String.valueOf(canalEntradoId))) {

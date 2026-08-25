@@ -16,16 +16,16 @@ public class ConfigManager {
     private static final String FILE_PATH = "config.json";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    // Carrega todas as configurações do JSON para um Map (GuildId -> CanalId)
-    public static Map<String, String> carregarConfigs() {
+    // Carrega todas as configurações: GuildId -> (ChaveConfig -> ValorId)
+    public static Map<String, Map<String, String>> carregarConfigs() {
         File file = new File(FILE_PATH);
         if (!file.exists()) {
-            return new HashMap<>(); // Retorna um mapa vazio se o arquivo não existir
+            return new HashMap<>();
         }
 
         try (FileReader reader = new FileReader(file)) {
-            Type type = new TypeToken<Map<String, String>>() {}.getType();
-            Map<String, String> configs = gson.fromJson(reader, type);
+            Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
+            Map<String, Map<String, String>> configs = gson.fromJson(reader, type);
             return configs != null ? configs : new HashMap<>();
         } catch (IOException e) {
             e.printStackTrace();
@@ -33,13 +33,18 @@ public class ConfigManager {
         }
     }
 
+    // Salva uma configuração específica (ex: chatvozid ou chattextid) para a guilda
+    public static void salvarConfig(String guildId, String tipoCanal, String canalId) {
+        Map<String, Map<String, String>> configs = carregarConfigs();
 
-    // Salva ou atualiza a configuração de um servidor específico no mapa e grava no JSON
-    public static void salvarConfig(String guildId, String canalId) {
-        Map<String, String> configs = carregarConfigs();
+        // Pega o mapa da guilda ou cria um novo se não existir
+        Map<String, String> dadosGuilda = configs.getOrDefault(guildId, new HashMap<>());
 
-        // Adiciona ou substitui o canal do servidor correspondente
-        configs.put(guildId, canalId);
+        // Adiciona ou atualiza o tipo específico (ex: "chatvozid" = "1293139")
+        dadosGuilda.put(tipoCanal, canalId);
+
+        // Atualiza no mapa principal
+        configs.put(guildId, dadosGuilda);
 
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
             gson.toJson(configs, writer);
@@ -49,9 +54,14 @@ public class ConfigManager {
         }
     }
 
-    // Pega o canal configurado de uma guilda específica rapidamente
-    public static String getCanalDoServidor(String guildId) {
-        Map<String, String> configs = carregarConfigs();
-        return configs.get(guildId);
+    // Pega um ID específico de uma guilda (ex: getCanalDoServidor(guildId, "chatvozid"))
+    public static String getCanalDoServidor(String guildId, String tipoCanal) {
+        Map<String, Map<String, String>> configs = carregarConfigs();
+        Map<String, String> dadosGuilda = configs.get(guildId);
+
+        if (dadosGuilda != null) {
+            return dadosGuilda.get(tipoCanal);
+        }
+        return null;
     }
 }

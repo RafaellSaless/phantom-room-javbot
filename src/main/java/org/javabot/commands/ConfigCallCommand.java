@@ -69,14 +69,13 @@ public class ConfigCallCommand extends Commands { // Ou ListenerAdapter, depende
             // Pega o ID do servidor atual
             String guildId = event.getGuild().getId();
 
-            // Salva ambos no JSON
-            org.javabot.commands.Managers.ConfigManager.salvarConfig(guildId, canalId);
-
+            // "chatvozid" or "chattextid"
+            org.javabot.commands.Managers.ConfigManager.salvarConfig(guildId, "chatvozid", canalId);
 
             EmbedBuilder canalConfigurad = new EmbedBuilder();
             canalConfigurad.setColor(Color.green);
-            canalConfigurad.setTitle("⚡ !config");
-            canalConfigurad.addField("Canal Configurado:", "<#" + canalId + ">", true); // Bônus: usei <#ID> para marcar o canal clicável no Discord!
+            canalConfigurad.setTitle("⚡ !configcall");
+            canalConfigurad.addField("Canal Configurado:", "<#" + canalId + ">", true);
 
             event.getChannel()
                     .sendMessageEmbeds(canalConfigurad.build())

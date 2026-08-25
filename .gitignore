@@ -43,6 +43,7 @@ build/
 ### Mac OS ###
 .DS_Store
 
+config.json
 .env
 .env.*
 !.env.example
