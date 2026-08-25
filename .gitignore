@@ -10,6 +10,10 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.ideia/vcs.xml
+.ideia/misc.xml
+.ideia/.gitignore
+.ideia/encodings.xml
 *.iws
 *.iml
 *.ipr

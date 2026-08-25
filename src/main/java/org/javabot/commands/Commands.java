@@ -1,7 +1,7 @@
 package org.javabot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.commands.managers.CommandManager;
+import org.javabot.commands.Managers.CommandManager;
 
 /**
  * Classe base abstrata que representa um comando do bot.
