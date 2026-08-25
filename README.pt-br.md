@@ -2,19 +2,21 @@
 
 [English](README.md)
 
-Um bot modular e organizado para Discord, desenvolvido em Java e focado no gerenciamento de canais de voz temporários.
+Um bot Discord em Java, limpo e modular, focado no gerenciamento de canais de voz temporários e na organização de gameplays.
 
 > **Status do projeto:** Em desenvolvimento
 
-## Visão geral
+## Visão Geral
 
-O Phantom Room JavBot é um bot para Discord desenvolvido em Java com o objetivo de fornecer um sistema automatizado de canais de voz temporários.
+O Phantom Room JavBot é um bot Discord desenvolvido em Java com o objetivo de fornecer um sistema automatizado de canais de voz temporários e funcionalidades para gerenciamento de gameplays.
 
-O conceito principal é simples: quando um usuário entra em um canal de voz definido como gatilho, o bot cria automaticamente uma sala temporária para ele. Quando a sala deixa de ser utilizada, ela pode ser removida automaticamente, mantendo o servidor organizado e evitando o acúmulo de canais desnecessários.
+O conceito principal é simples: os usuários entram em um canal de voz específico, e o bot cria automaticamente uma sala temporária para eles. Quando a sala não está mais sendo utilizada, ela pode ser removida automaticamente, mantendo o servidor organizado e reduzindo canais desnecessários.
 
-O projeto está sendo desenvolvido com uma arquitetura modular, permitindo a adição de novos comandos e funcionalidades ao longo do desenvolvimento.
+O projeto também tem como objetivo fornecer um sistema de agendamento de gameplays, permitindo que os usuários organizem sessões de jogos, gerenciem participantes e criem automaticamente canais de voz privados para cada gameplay.
 
-## Status atual
+O projeto está sendo desenvolvido com uma arquitetura modular, permitindo que novos comandos e funcionalidades sejam adicionados ao longo do tempo.
+
+## Status Atual
 
 O projeto está atualmente em desenvolvimento.
 
@@ -25,42 +27,88 @@ O repositório está sendo construído de forma incremental, com cada branch rep
 * Estrutura inicial do projeto
 * Configuração básica do bot Discord
 * Configuração de variáveis de ambiente
-* Estrutura inicial do sistema de canais de voz
-
-### Em desenvolvimento
-
+* Arquitetura de comandos
 * Criação de canais de voz temporários
-* Gerenciamento dos canais temporários
-* Sistema de comandos
-* Comandos de configuração do servidor
+* Exclusão de canais de voz temporários
+* Configuração de canais
+* Gerenciamento de permissões
+
+### Em Desenvolvimento
+
+* Sistema de agendamento de gameplays
 
 ### Planejado
 
-* Gerenciamento de permissões
-* Personalização dos nomes dos canais temporários
+* Criação de gameplays através de comandos
+* Gerenciamento das informações da gameplay
+* Divulgação de gameplays
+* Gerenciamento de participantes
+* Canais de voz privados para gameplays
+* Controles para entrar e sair da gameplay
+* Gerenciamento do limite de jogadores
+* Cancelamento de gameplays
+* Gerenciamento automático dos canais de gameplay
+* Nomes personalizados para canais temporários
 * Controles específicos para usuários
-* Funcionalidades adicionais de gerenciamento e moderação
+* Comando de ajuda
+* Funcionalidades adicionais de gerenciamento do servidor
+
+## Gerenciamento de Gameplays
+
+O sistema de gerenciamento de gameplays permitirá que os membros do servidor organizem sessões de jogos diretamente através do bot.
+
+O usuário poderá criar uma gameplay informando:
+
+* Nome do jogo
+* Quantidade máxima de jogadores
+* Horário agendado
+
+O bot então publicará as informações da gameplay em um canal configurado especificamente para anúncios de gameplays.
+
+Cada gameplay terá controles interativos que permitirão aos usuários entrar ou sair da sessão.
+
+Quando um usuário entrar em uma gameplay, o bot concederá automaticamente a ele permissão para acessar o canal de voz privado criado para aquela sessão.
+
+### Exemplo
+
+Uma gameplay poderia ser criada com as seguintes informações:
+
+```text
+Jogo: PEAK
+Jogadores: 4
+Horário: 22:00
+```
+
+O bot publicará as informações da gameplay no canal configurado e criará um canal de voz privado para a sessão, por exemplo:
+
+```text
+🔒・RafaelSales — PEAK
+```
+
+Os usuários poderão entrar na gameplay através dos controles disponíveis. Assim que entrarem, receberão automaticamente acesso ao canal de voz correspondente.
+
+O sistema também controlará a quantidade de participantes, impedindo que novos usuários entrem quando o limite máximo de jogadores for atingido.
 
 ## Tecnologias
 
-| Tecnologia     | Finalidade                            |
-| -------------- | ------------------------------------- |
-| Java 17+       | Linguagem principal                   |
-| JDA            | Integração com a API do Discord       |
-| Maven / Gradle | Build e gerenciamento de dependências |
+| Tecnologia     | Finalidade                         |
+| -------------- | ---------------------------------- |
+| Java 17+       | Linguagem principal                |
+| JDA            | Integração com a API do Discord    |
+| Maven / Gradle | Gerenciamento de build e dependências |
 
 ## Configuração
 
-O bot utiliza variáveis de ambiente para armazenar informações sensíveis de configuração.
+O bot utiliza variáveis de ambiente para dados de configuração sensíveis.
 
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-DISCORD_TOKEN=seu_token_aqui
+DISCORD_TOKEN=seu_token_do_bot_aqui
 PREFIX=seu_prefixo_aqui
 ```
 
-Nunca envie o token do bot ou outras credenciais sensíveis para o repositório.
+Nunca faça commit do token do bot ou de outras credenciais sensíveis no repositório.
 
 ## Intents do Discord
 
@@ -72,19 +120,26 @@ O bot requer os seguintes intents habilitados no Discord Developer Portal:
 
 ## Desenvolvimento
 
-O projeto está sendo desenvolvido de forma incremental através de branches separadas no Git.
+O projeto está sendo desenvolvido de forma incremental através de branches separadas do Git.
 
-A branch `base-config` contém a configuração inicial do projeto e serve como base para as próximas etapas do desenvolvimento.
+A branch `base-config` contém a configuração inicial do projeto e serve como base para o desenvolvimento das funcionalidades seguintes.
 
-À medida que novas funcionalidades são implementadas, elas serão desenvolvidas em branches específicas e posteriormente integradas ao projeto principal.
+Conforme novas funcionalidades são implementadas, elas serão desenvolvidas em branches dedicadas e posteriormente integradas ao projeto principal.
 
 ## Roadmap
 
 * [x] Configuração inicial do projeto
-* [ ] Arquitetura do sistema de comandos
-* [ ] Criação de canais de voz temporários
-* [ ] Remoção de canais de voz temporários
-* [ ] Configuração dos canais
-* [ ] Gerenciamento de permissões
+* [x] Arquitetura de comandos
+* [x] Criação de canais de voz temporários
+* [x] Exclusão de canais de voz temporários
+* [x] Configuração de canais
+* [x] Gerenciamento de permissões
+* [ ] Agendamento de gameplays
+* [ ] Divulgação de gameplays
+* [ ] Gerenciamento de participantes
+* [ ] Canais de voz privados para gameplays
+* [ ] Controles para entrar e sair da gameplay
+* [ ] Gerenciamento do limite de jogadores
+* [ ] Cancelamento de gameplays
+* [ ] Gerenciamento automático de gameplays
 * [ ] Funcionalidades adicionais de gerenciamento do servidor
-
