@@ -1,9 +1,9 @@
-package org.javabot.commands.Listeners;
+package org.javabot.Listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.javabot.commands.Managers.TempVoiceManager;
-import org.javabot.commands.Managers.TempVoice;
+import org.javabot.Managers.TempVoiceManager;
+import org.javabot.Managers.TempVoice;
 
 public class ButtonListener extends ListenerAdapter {
 

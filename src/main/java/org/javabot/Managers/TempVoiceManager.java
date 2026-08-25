@@ -1,4 +1,4 @@
-package org.javabot.commands.Managers;
+package org.javabot.Managers;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 

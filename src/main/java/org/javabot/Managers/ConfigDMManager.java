@@ -1,4 +1,4 @@
-package org.javabot.commands.Managers;
+package org.javabot.Managers;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;

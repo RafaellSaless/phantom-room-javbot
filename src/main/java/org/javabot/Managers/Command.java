@@ -1,4 +1,4 @@
-package org.javabot.commands.Managers;
+package org.javabot.Managers;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

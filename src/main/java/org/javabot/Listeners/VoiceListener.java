@@ -1,10 +1,10 @@
-package org.javabot.commands.Listeners;
+package org.javabot.Listeners;
 
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.javabot.commands.Managers.ConfigManager;
-import org.javabot.commands.Managers.TempVoiceManager;
+import org.javabot.Managers.ConfigManager;
+import org.javabot.Managers.TempVoiceManager;
 
 public class VoiceListener extends ListenerAdapter {
 

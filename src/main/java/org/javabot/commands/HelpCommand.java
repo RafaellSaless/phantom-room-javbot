@@ -2,8 +2,8 @@ package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.commands.Managers.Command;
-import org.javabot.commands.Managers.CommandManager;
+import org.javabot.Managers.Command;
+import org.javabot.Managers.CommandManager;
 
 import java.awt.*;
 

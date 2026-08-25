@@ -1,7 +1,7 @@
 package org.javabot.commands;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.commands.Managers.Command;
+import org.javabot.Managers.Command;
 
 /**
  * Comando responsável por verificar a conectividade e o status do bot.

@@ -2,7 +2,8 @@ package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.commands.Managers.Command;
+import org.javabot.Managers.ConfigManager;
+import org.javabot.Managers.Command;
 
 import java.awt.*;
 
@@ -70,7 +71,7 @@ public class ConfigCallCommand extends Commands { // Ou ListenerAdapter, depende
             String guildId = event.getGuild().getId();
 
             // "chatvozid" or "chattextid"
-            org.javabot.commands.Managers.ConfigManager.salvarConfig(guildId, "chatvozid", canalId);
+            ConfigManager.salvarConfig(guildId, "chatvozid", canalId);
 
             EmbedBuilder canalConfigurad = new EmbedBuilder();
             canalConfigurad.setColor(Color.green);
