@@ -2,7 +2,7 @@ package org.javabot.commands.Listeners;
 
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.javabot.commands.ConfigCommand;
+import org.javabot.commands.Managers.TempVoiceManager;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -22,7 +22,7 @@ public class VoiceListener extends ListenerAdapter {
                 String nomeUsuario = event.getMember().getUser().getName();
                 System.out.println(nomeUsuario + " entrou no canal de criação de call do servidor " + guildId + "!");
 
-                // Aqui entra a lógica de criar a call temporária para o usuário
+                TempVoiceManager.criarCall(event);
             }
         }
     }
