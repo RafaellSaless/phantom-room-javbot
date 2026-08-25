@@ -4,7 +4,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.javabot.commands.Listeners.ButtonListener;
 import org.javabot.commands.Listeners.CommandListener;
+import org.javabot.commands.Listeners.ModalListener;
 import org.javabot.commands.Listeners.VoiceListener;
 import org.javabot.commands.Managers.CommandManager;
 
@@ -25,7 +27,12 @@ public class Main {
                         EnumSet.allOf(GatewayIntent.class)
 
                 )
-                .addEventListeners(new CommandListener(), new VoiceListener())
+                .addEventListeners(
+                        new CommandListener(),
+                        new VoiceListener(),
+                        new ButtonListener(),
+                        new ModalListener()
+                )
                 .build();
 
     }
