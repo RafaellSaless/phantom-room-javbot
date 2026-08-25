@@ -25,5 +25,16 @@ public class VoiceListener extends ListenerAdapter {
                 TempVoiceManager.criarCall(event);
             }
         }
+                if (event.getChannelLeft() != null) {
+
+                    long canalSaidoId = event.getChannelLeft().getIdLong();
+
+                    TempVoiceManager.verificarCallVazia(
+                            event.getGuild(),
+                            canalSaidoId
+                    );
+        }
     }
+
+
 }
