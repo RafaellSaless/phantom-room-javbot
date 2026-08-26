@@ -34,8 +34,8 @@ public class ModalListener extends ListenerAdapter {
 
         if (id.equals("game:schedule")) {
 
-                long userId =
-                        event.getUser().getIdLong();
+            long userId =
+                    event.getUser().getIdLong();
 
             String guildId = GameManager.getGuildId(userId);
 
@@ -63,43 +63,22 @@ public class ModalListener extends ListenerAdapter {
                             .trim();
 
 
-            String maxTexto =
+            String maxParticipantes =
                     event.getValue("max")
                             .getAsString()
                             .trim();
 
+            String horarioFormatado = validarHorario(horario.split(":"), event);
 
-            int maxParticipantes;
-
-            try {
-
-                maxParticipantes =
-                        Integer.parseInt(
-                                maxTexto
-                        );
-
-            } catch (NumberFormatException e) {
-
-                event.reply(
-                                "❌ O máximo de participantes precisa ser um número."
-                        )
-                        .setEphemeral(true)
-                        .queue();
-
+            if( horarioFormatado == null) {
                 return;
             }
 
-
-            if (maxParticipantes <= 0) {
-
-                event.reply(
-                                "❌ O máximo de participantes precisa ser maior que 0."
-                        )
-                        .setEphemeral(true)
-                        .queue();
-
+            int participantesValidado = validarParticipantes(maxParticipantes, event);
+            if(participantesValidado == -1) {
                 return;
             }
+
 
 
             /*
@@ -110,8 +89,8 @@ public class ModalListener extends ListenerAdapter {
                     userId,
                     guildId,
                     jogo,
-                    horario,
-                    maxParticipantes
+                    horarioFormatado,
+                    participantesValidado
             );
 
 
@@ -234,4 +213,89 @@ public class ModalListener extends ListenerAdapter {
                         + "** usuários."
         ).queue();
     }
+
+    private int validarParticipantes(
+            String participantesString,
+            ModalInteractionEvent event) {
+
+
+        int maxParticipantes=-1;
+
+        try {
+
+            maxParticipantes =
+                    Integer.parseInt(
+                            participantesString
+                    );
+        } catch (NumberFormatException e) {
+
+            event.reply(
+                            "❌ O máximo de participantes precisa ser um número."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+            return -1;
+        }
+
+        if (maxParticipantes > 20) {
+
+            event.reply(
+                            "❌ O máximo de participantes precisa ser menor ou igual a 20."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+            return -1;
+
+        }
+
+        if (maxParticipantes <= 0) {
+
+            event.reply(
+                            "❌ O máximo de participantes precisa ser maior que 0."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+            return -1;
+
+        }
+
+        return maxParticipantes;
+
+    }
+
+    private String validarHorario(
+            String[] horario,
+            ModalInteractionEvent event) {
+
+
+
+        if (horario.length == 2) {
+            try {
+
+                int hora = Integer.parseInt(horario[0]);
+                int minuto = Integer.parseInt(horario[1]);
+
+                if (!((hora > 23 || hora < 0) && (minuto > 59 || minuto < 0))) {
+
+                    // Supondo que 'hora' e 'minuto' passaram na validação
+                    return String.format("%02d:%02d", hora, minuto);
+                } else {
+                    event.reply(
+                                    "❌ Horário invalido"
+                            )
+                            .setEphemeral(true)
+                            .queue();
+                }
+
+            } catch (NumberFormatException e) {
+                event.reply(
+                                "❌ Horário invalido"
+                        )
+                        .setEphemeral(true)
+                        .queue();
+            }
+        }
+        return null;
+    }
+
 }
