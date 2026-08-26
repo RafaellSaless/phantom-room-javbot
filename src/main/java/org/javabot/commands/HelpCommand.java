@@ -2,11 +2,14 @@ package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.commands.Managers.Command;
-import org.javabot.commands.Managers.CommandManager;
+import org.javabot.Managers.Command;
+import org.javabot.Managers.CommandManager;
 
 import java.awt.*;
 
+/**
+ * Comando com função de imprimir o modo de uso de todos os comandos do boy
+ */
 @Command(
         name = "help",
         description = "comando de ajuda do bot;"

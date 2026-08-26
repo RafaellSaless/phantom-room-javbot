@@ -1,4 +1,4 @@
-package org.javabot.commands.Managers;
+package org.javabot.Managers;
 
 public class TempVoice {
 

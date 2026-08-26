@@ -1,10 +1,14 @@
-package org.javabot.commands.Listeners;
+package org.javabot.Listeners;
 
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.javabot.commands.Managers.TempVoice;
-import org.javabot.commands.Managers.TempVoiceManager;
+import org.javabot.Managers.TempVoice;
+import org.javabot.Managers.TempVoiceManager;
 
+/**
+ * Listener responsavel por intermediar ações dos botões
+ * Estende o {@link ListenerAdapter} da biblioteca JDA.
+ */
 public class ModalListener extends ListenerAdapter {
 
     @Override

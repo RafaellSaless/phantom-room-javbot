@@ -2,15 +2,19 @@ package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.commands.Managers.Command;
+import org.javabot.Managers.ConfigManager;
+import org.javabot.Managers.Command;
 
 import java.awt.*;
 
+/**
+ * Comando responsavel por configurar o canal de voz para criação de calls temporarias
+ */
 @Command(
-        name = "config",
+        name = "configcall",
         description = "Comando para configuração do canal de criação de call"
 )
-public class ConfigCommand extends Commands { // Ou ListenerAdapter, dependendo de como gerencia seus eventos
+public class ConfigCallCommand extends Commands { // Ou ListenerAdapter, dependendo de como gerencia seus eventos
 
     private static String canalId;
 
@@ -19,18 +23,18 @@ public class ConfigCommand extends Commands { // Ou ListenerAdapter, dependendo 
 
         EmbedBuilder idFaltante = new EmbedBuilder();
         idFaltante.setColor(Color.red);
-        idFaltante.setTitle("⚡ !config");
+        idFaltante.setTitle("⚡ !configcall");
         idFaltante.setDescription("Guia de utilização do comando config");
-        idFaltante.addField("Para utilizar utilize a logica:", "!config <ID>", true);
+        idFaltante.addField("Para utilizar utilize a logica:", "!configcall <ID>", true);
 
         EmbedBuilder idInvalido = new EmbedBuilder();
         idInvalido.setColor(Color.red);
-        idInvalido.setTitle("⚡ !config");
+        idInvalido.setTitle("⚡ !configcall");
         idInvalido.addField("ID invalido:", "o comando foi inserido com um id invalido", true);
 
         EmbedBuilder canalInvalido = new EmbedBuilder();
         canalInvalido.setColor(Color.red);
-        canalInvalido.setTitle("⚡ !config");
+        canalInvalido.setTitle("⚡ !configcall");
         canalInvalido.addField("Canal invalido:", "O ID inserido não foi de um canal de voz", true);
 
 
@@ -69,14 +73,13 @@ public class ConfigCommand extends Commands { // Ou ListenerAdapter, dependendo 
             // Pega o ID do servidor atual
             String guildId = event.getGuild().getId();
 
-            // Salva ambos no JSON
-            org.javabot.commands.Managers.ConfigManager.salvarConfig(guildId, canalId);
-
+            // "chatvozid" or "chattextid"
+            ConfigManager.salvarConfig(guildId, "chatvozid", canalId);
 
             EmbedBuilder canalConfigurad = new EmbedBuilder();
             canalConfigurad.setColor(Color.green);
-            canalConfigurad.setTitle("⚡ !config");
-            canalConfigurad.addField("Canal Configurado:", "<#" + canalId + ">", true); // Bônus: usei <#ID> para marcar o canal clicável no Discord!
+            canalConfigurad.setTitle("⚡ !configcall");
+            canalConfigurad.addField("Canal Configurado:", "<#" + canalId + ">", true);
 
             event.getChannel()
                     .sendMessageEmbeds(canalConfigurad.build())

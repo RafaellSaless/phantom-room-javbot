@@ -1,10 +1,10 @@
-package org.javabot.commands.Listeners;
+package org.javabot.Listeners;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.javabot.commands.Commands;
-import org.javabot.commands.Managers.CommandManager;
+import org.javabot.Managers.CommandManager;
 
 
 /**

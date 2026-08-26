@@ -1,12 +1,20 @@
-package org.javabot.commands.Listeners;
+package org.javabot.Listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.javabot.commands.Managers.TempVoiceManager;
-import org.javabot.commands.Managers.TempVoice;
+import org.javabot.Managers.TempVoiceManager;
+import org.javabot.Managers.TempVoice;
 
+/**
+ * Listener que vai "ouvir" as ações do usuario por butões, utilizando atualmente em DM's
+ * Estende o {@link ListenerAdapter} da biblioteca JDA.
+ */
 public class ButtonListener extends ListenerAdapter {
 
+    /**
+     * Função para identifcar a intereção com os botões da DM
+     * @param event evento a ter interação
+     */
     @Override
     public void onButtonInteraction(
             ButtonInteractionEvent event
@@ -54,6 +62,10 @@ public class ButtonListener extends ListenerAdapter {
     }
 
 
+    /**
+     * Cria o modal para mudar nome de uma call
+     * @param event evento da interação
+     */
     private void abrirModalNome(
             ButtonInteractionEvent event
     ) {
@@ -109,6 +121,10 @@ public class ButtonListener extends ListenerAdapter {
     }
 
 
+    /**
+     * Cria o modal para mudar a privacidade
+     * @param event evento da interação
+     */
     private void configurarPrivacidade(
             ButtonInteractionEvent event
     ) {
