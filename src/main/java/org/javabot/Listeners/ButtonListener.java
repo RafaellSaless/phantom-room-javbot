@@ -2,6 +2,9 @@ package org.javabot.Listeners;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.javabot.Managers.TempVoiceManager;
 import org.javabot.Managers.TempVoice;
 
@@ -24,13 +27,76 @@ public class ButtonListener extends ListenerAdapter {
 
         // Só processa nossos botões
         if (id.startsWith("call:")) {
-            processarButoesCallTemp(event, id);
+            processarBotoesCallTemp(event, id);
+        }
+        if (id.startsWith("game:")) {
+            processarBotoesGameSchedule(event, id);
         }
 
     }
 
+    private void processarBotoesGameSchedule(ButtonInteractionEvent event, String id) {
 
-    private void processarButoesCallTemp(ButtonInteractionEvent event, String id) {
+
+        if (id.equals("game:marcar")) {
+
+            Modal modal = Modal.create(
+                            "game:schedule",
+                            "Marcar jogo"
+                    )
+
+                    .addActionRow(
+                            TextInput.create(
+                                            "jogo",
+                                            "Nome do jogo",
+                                            TextInputStyle.SHORT
+                                    )
+                                    .setPlaceholder(
+                                            "Ex: PEAK"
+                                    )
+                                    .setRequired(true)
+                                    .setMinLength(1)
+                                    .setMaxLength(100)
+                                    .build()
+                    )
+
+                    .addActionRow(
+                            TextInput.create(
+                                            "horario",
+                                            "Horário",
+                                            TextInputStyle.SHORT
+                                    )
+                                    .setPlaceholder(
+                                            "Ex: 20:30"
+                                    )
+                                    .setRequired(true)
+                                    .setMaxLength(10)
+                                    .build()
+                    )
+
+                    .addActionRow(
+                            TextInput.create(
+                                            "max",
+                                            "Máximo de participantes",
+                                            TextInputStyle.SHORT
+                                    )
+                                    .setPlaceholder(
+                                            "Ex: 5"
+                                    )
+                                    .setRequired(true)
+                                    .setMaxLength(3)
+                                    .build()
+                    )
+
+                    .build();
+
+            event.replyModal(modal).queue();
+
+            return;
+        }
+    }
+
+    private void processarBotoesCallTemp(ButtonInteractionEvent event, String id) {
         TempVoice call =
                 TempVoiceManager.getCallDoUsuario(
                         event.getUser().getIdLong()

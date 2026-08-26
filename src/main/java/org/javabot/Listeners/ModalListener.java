@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.javabot.Managers.TempVoice;
 import org.javabot.Managers.TempVoiceManager;
+import org.javabot.Managers.GameManager;
 
 /**
  * Listener responsavel por intermediar ações dos botões
@@ -21,8 +22,119 @@ public class ModalListener extends ListenerAdapter {
         if (id.startsWith("call:modal:")) {
             processarCall(event, id);
         }
-        
+
+        if(id.startsWith("game:")) {
+            processarSchedule(event, id);
+        }
+
     }
+
+
+    private void processarSchedule(ModalInteractionEvent event, String id) {
+
+        if (id.equals("game:schedule")) {
+
+                long userId =
+                        event.getUser().getIdLong();
+
+            String guildId = GameManager.getGuildId(userId);
+
+            if (guildId == null) {
+
+                event.reply(
+                                "❌ Não encontrei um agendamento sendo configurado."
+                        )
+                        .setEphemeral(true)
+                        .queue();
+
+                return;
+            }
+
+
+            String jogo =
+                    event.getValue("jogo")
+                            .getAsString()
+                            .trim();
+
+
+            String horario =
+                    event.getValue("horario")
+                            .getAsString()
+                            .trim();
+
+
+            String maxTexto =
+                    event.getValue("max")
+                            .getAsString()
+                            .trim();
+
+
+            int maxParticipantes;
+
+            try {
+
+                maxParticipantes =
+                        Integer.parseInt(
+                                maxTexto
+                        );
+
+            } catch (NumberFormatException e) {
+
+                event.reply(
+                                "❌ O máximo de participantes precisa ser um número."
+                        )
+                        .setEphemeral(true)
+                        .queue();
+
+                return;
+            }
+
+
+            if (maxParticipantes <= 0) {
+
+                event.reply(
+                                "❌ O máximo de participantes precisa ser maior que 0."
+                        )
+                        .setEphemeral(true)
+                        .queue();
+
+                return;
+            }
+
+
+            /*
+             * Publica o agendamento.
+             */
+            GameManager.publicarAgendamento(
+                    event.getJDA(),
+                    userId,
+                    guildId,
+                    jogo,
+                    horario,
+                    maxParticipantes
+            );
+
+
+            /*
+             * Remove o processo temporário.
+             */
+            GameManager.removerConfiguracao(
+                    userId
+            );
+
+            event.reply(
+                            "✅ **Agendamento criado com sucesso!**\n\n" +
+                                    "🎮 Jogo: `" + jogo + "`\n" +
+                                    "🕐 Horário: `" + horario + "`\n" +
+                                    "👥 Máximo: `" + maxParticipantes + "`"
+                    )
+                    .setEphemeral(true)
+                    .queue();
+            return;
+
+    }
+    }
+
 
     private void processarCall(ModalInteractionEvent event, String id) {
 
