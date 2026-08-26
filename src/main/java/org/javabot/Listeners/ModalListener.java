@@ -18,9 +18,14 @@ public class ModalListener extends ListenerAdapter {
 
         String id = event.getModalId();
 
-        if (!id.startsWith("call:modal:")) {
-            return;
+        if (id.startsWith("call:modal:")) {
+            processarCall(event, id);
         }
+        
+    }
+
+    private void processarCall(ModalInteractionEvent event, String id) {
+
 
         TempVoice call =
                 TempVoiceManager.getCallDoUsuario(
@@ -46,8 +51,8 @@ public class ModalListener extends ListenerAdapter {
                 alterarLimite(event, call);
                 break;
         }
-    }
 
+    }
 
     private void alterarNome(
             ModalInteractionEvent event,
