@@ -23,10 +23,14 @@ public class ButtonListener extends ListenerAdapter {
         String id = event.getComponentId();
 
         // Só processa nossos botões
-        if (!id.startsWith("call:")) {
-            return;
+        if (id.startsWith("call:")) {
+            processarButoesCallTemp(event, id);
         }
 
+    }
+
+
+    private void processarButoesCallTemp(ButtonInteractionEvent event, String id) {
         TempVoice call =
                 TempVoiceManager.getCallDoUsuario(
                         event.getUser().getIdLong()
@@ -60,7 +64,6 @@ public class ButtonListener extends ListenerAdapter {
                 break;
         }
     }
-
 
     /**
      * Cria o modal para mudar nome de uma call
