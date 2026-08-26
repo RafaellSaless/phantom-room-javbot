@@ -7,6 +7,10 @@ import org.javabot.Managers.Command;
 
 import java.awt.*;
 
+
+/**
+ * Comando responsavel por configurar canal a receber notificações de gameplay's marcadas
+ */
 @Command(
         name = "configschedule",
         description = "Comando para configuração do chat para envio de gameplays"

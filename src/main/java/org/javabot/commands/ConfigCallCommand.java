@@ -7,6 +7,9 @@ import org.javabot.Managers.Command;
 
 import java.awt.*;
 
+/**
+ * Comando responsavel por configurar o canal de voz para criação de calls temporarias
+ */
 @Command(
         name = "configcall",
         description = "Comando para configuração do canal de criação de call"

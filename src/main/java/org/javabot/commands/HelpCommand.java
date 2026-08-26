@@ -7,6 +7,9 @@ import org.javabot.Managers.CommandManager;
 
 import java.awt.*;
 
+/**
+ * Comando com função de imprimir o modo de uso de todos os comandos do boy
+ */
 @Command(
         name = "help",
         description = "comando de ajuda do bot;"

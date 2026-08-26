@@ -5,6 +5,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.javabot.Managers.TempVoice;
 import org.javabot.Managers.TempVoiceManager;
 
+/**
+ * Listener responsavel por intermediar ações dos botões
+ * Estende o {@link ListenerAdapter} da biblioteca JDA.
+ */
 public class ModalListener extends ListenerAdapter {
 
     @Override

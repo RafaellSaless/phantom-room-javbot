@@ -6,6 +6,10 @@ import org.jetbrains.annotations.NotNull;
 import org.javabot.Managers.ConfigManager;
 import org.javabot.Managers.TempVoiceManager;
 
+/**
+ * Listener responsavel por verificar o e atualizar o sistema de call
+ * Estende o {@link ListenerAdapter} da biblioteca JDA.
+ */
 public class VoiceListener extends ListenerAdapter {
 
     @Override
