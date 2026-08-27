@@ -5,14 +5,24 @@ package org.javabot.Managers;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.javabot.Main;
 
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class GameManager {
+
+    private static final Map<String, GameSchedule> agendamentos = new HashMap<>();
 
     /*
      * Guarda temporariamente:
@@ -124,7 +134,7 @@ public class GameManager {
 
         embed.addField(
                 "👥 Participantes",
-                "0/" + maxParticipantes,
+                String.valueOf(maxParticipantes),
                 true
         );
 
@@ -150,4 +160,229 @@ public class GameManager {
                 )
                 .queue();
     }
+
+    public static void criarAgendamento(
+            Guild guild,
+            long ownerId,
+            String jogo,
+            String horario,
+            int maxParticipantes
+    ) {
+
+        String scheduleId = UUID.randomUUID().toString();
+
+        GameSchedule schedule =
+                new GameSchedule(
+                        scheduleId,
+                        guild.getId(),
+                        ownerId,
+                        jogo,
+                        horario,
+                        maxParticipantes
+                );
+
+        // O criador já é participante
+        schedule.adicionarParticipante(ownerId);
+
+        agendamentos.put(
+                scheduleId,
+                schedule
+        );
+
+        Member owner =
+                guild.getMemberById(ownerId);
+
+        if (owner == null) {
+            return;
+        }
+
+        String nomeCategoria =
+                owner.getEffectiveName()
+                        + " - "
+                        + jogo;
+
+        guild.createCategory(nomeCategoria)
+                .queue(category -> {
+
+                    schedule.setCategoryId(
+                            category.getId()
+                    );
+
+                    // @everyone não pode visualizar
+                    category
+                            .upsertPermissionOverride(
+                                    guild.getPublicRole()
+                            )
+                            .deny(
+                                    Permission.VIEW_CHANNEL
+                            )
+                            .queue();
+
+                    // Criador recebe acesso
+                    category
+                            .upsertPermissionOverride(owner)
+                            .grant(
+                                    Permission.VIEW_CHANNEL,
+                                    Permission.MESSAGE_SEND,
+                                    Permission.MESSAGE_HISTORY
+                            )
+                            .queue();
+
+                    criarCanais(
+                            category,
+                            schedule
+                    );
+
+                    publicarAgendamento(
+                            guild.getJDA(),
+                            schedule.getOwnerId(),
+                            schedule.getGuildId(),
+                            schedule.getJogo(),
+                            schedule.getHorario(),
+                            schedule.getMaxParticipantes()
+                    );
+                });
+    }
+
+    private static void criarCanais(
+            Category category,
+            GameSchedule schedule
+    ) {
+
+        category.createTextChannel("chat-geral")
+                .queue(channel -> {
+
+                    schedule.setChatId(
+                            channel.getId()
+                    );
+
+                    channel.sendMessage(
+                            "🎮 **"
+                                    + schedule.getJogo()
+                                    + "**\n\n"
+                                    + "Bem-vindo ao grupo da partida!\n"
+                                    + "🕐 Horário: `"
+                                    + schedule.getHorario()
+                                    + "`"
+                    ).queue();
+                });
+
+
+        category.createTextChannel("configuracoes")
+                .queue(channel -> {
+
+                    schedule.setConfigId(
+                            channel.getId()
+                    );
+
+                    enviarConfiguracoes(
+                            channel,
+                            schedule
+                    );
+                });
+    }
+
+    public static void deletarCanais(
+            ButtonInteractionEvent event,
+            GameSchedule schedule
+    ) {
+
+        Guild guild = event.getJDA().getGuildById(schedule.getGuildId());
+
+        if (guild != null) {
+            // 1. Deleta o chat (usando a String chatId)
+            if (schedule.getChatId() != null) {
+                var chatChannel = guild.getTextChannelById(schedule.getChatId());
+                if (chatChannel != null) chatChannel.delete().queue();
+            }
+
+            // 2. Deleta o canal de configuração (usando a String configId)
+            if (schedule.getConfigId() != null) {
+                var configChannel = guild.getTextChannelById(schedule.getConfigId());
+                if (configChannel != null) configChannel.delete().queue();
+            }
+
+            // 3. Deleta a categoria (usando a String categoryId)
+            if (schedule.getCategoryId() != null) {
+                var category = guild.getCategoryById(schedule.getCategoryId());
+                if (category != null) category.delete().queue();
+            }
+        }
+
+    }
+
+    private static void enviarConfiguracoes(
+            TextChannel channel,
+            GameSchedule schedule
+    ) {
+
+        EmbedBuilder embed =
+                new EmbedBuilder();
+
+        embed.setTitle(
+                "⚙️ Configurações do agendamento"
+        );
+
+        embed.setDescription(
+                "Utilize os botões abaixo para gerenciar sua participação."
+        );
+
+        embed.addField(
+                "🎮 Jogo",
+                schedule.getJogo(),
+                true
+        );
+
+        embed.addField(
+                "🕐 Horário",
+                schedule.getHorario(),
+                true
+        );
+
+        embed.addField(
+                "👥 Participantes",
+                schedule.quantidadeParticipantes()
+                        + "/"
+                        + schedule.getMaxParticipantes(),
+                true
+        );
+
+        embed.setColor(
+                new Color(88, 101, 242)
+        );
+
+        channel.sendMessageEmbeds(
+                        embed.build()
+                )
+                .setActionRow(
+                        Button.secondary(
+                                "game:sair:" + schedule.getId(),
+                                "🚪 Sair do grupo"
+                        ),
+                        Button.danger(
+                                "game:fechar:" + schedule.getId(),
+                                "🔒 Fechar agendamento"
+                        )
+                )
+                .queue();
+    }
+
+    /**
+     * Busca um agendamento pelo seu ID único (UUID).
+     * @param scheduleId O ID do agendamento.
+     * @return O objeto GameSchedule correspondente, ou null se não encontrar.
+     */
+    public static GameSchedule getAgendamento(String scheduleId) {
+        return agendamentos.get(scheduleId);
+    }
+
+    /**
+     * Remove um agendamento do mapa global.
+     * @param scheduleId O ID do agendamento que será deletado.
+     */
+    public static void removerAgendamento(String scheduleId) {
+        agendamentos.remove(scheduleId);
+    }
+
 }
+

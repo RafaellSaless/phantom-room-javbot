@@ -84,15 +84,14 @@ public class ModalListener extends ListenerAdapter {
             /*
              * Publica o agendamento.
              */
-            GameManager.publicarAgendamento(
-                    event.getJDA(),
+
+            GameManager.criarAgendamento(
+                    event.getJDA().getGuildById(guildId),
                     userId,
-                    guildId,
                     jogo,
                     horarioFormatado,
                     participantesValidado
             );
-
 
             /*
              * Remove o processo temporário.

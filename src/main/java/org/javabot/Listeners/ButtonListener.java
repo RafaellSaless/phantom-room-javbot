@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import org.javabot.Managers.GameManager;
+import org.javabot.Managers.GameSchedule;
 import org.javabot.Managers.TempVoiceManager;
 import org.javabot.Managers.TempVoice;
 
@@ -37,6 +39,19 @@ public class ButtonListener extends ListenerAdapter {
 
     private void processarBotoesGameSchedule(ButtonInteractionEvent event, String id) {
 
+        if (id.startsWith("game:fechar:")) {
+            String scheduleId = id.replace("game:fechar:", "");
+
+            GameSchedule schedule = GameManager.getAgendamento(scheduleId); // (Ou o nome do método que você usa para buscar)
+
+            if (schedule != null) {
+                GameManager.deletarCanais(event, schedule);
+
+                GameManager.removerAgendamento(scheduleId);
+            } else {
+                event.reply("❌ Este agendamento não foi encontrado ou já foi fechado.").setEphemeral(true).queue();
+            }
+        }
 
         if (id.equals("game:marcar")) {
 
