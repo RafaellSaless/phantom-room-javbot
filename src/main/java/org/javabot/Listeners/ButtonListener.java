@@ -44,14 +44,23 @@ public class ButtonListener extends ListenerAdapter {
 
             GameSchedule schedule = GameManager.getAgendamento(scheduleId); // (Ou o nome do método que você usa para buscar)
 
-            if (schedule != null) {
-                GameManager.deletarCanais(event, schedule);
+            long userIdClick = event.getUser().getIdLong();
 
-                GameManager.removerAgendamento(scheduleId);
-            } else {
+            if(schedule == null) {
                 event.reply("❌ Este agendamento não foi encontrado ou já foi fechado.").setEphemeral(true).queue();
+                return;
             }
+
+            if(!schedule.ehDono(userIdClick)) {
+                event.reply("❌ Apenas o criador deste agendamento pode fechá-lo!").setEphemeral(true).queue();
+                return;
+            }
+
+            GameManager.deletarCanais(event, schedule);
+            GameManager.removerAgendamento(scheduleId);
+
         }
+
 
         if (id.startsWith("game:participar:")) {
             String scheduleId = id.replace("game:participar:", "");
