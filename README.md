@@ -134,12 +134,12 @@ As new features are implemented, they will be developed in dedicated branches an
 * [x] Temporary voice channel deletion
 * [x] Channel configuration
 * [x] Permission management
-* [ ] Gameplay scheduling
-* [ ] Gameplay announcements
-* [ ] Gameplay participant management
-* [ ] Private gameplay voice channels
-* [ ] Join and leave gameplay controls
-* [ ] Player limit management
-* [ ] Gameplay cancellation
+* [x] Gameplay scheduling
+* [x] Gameplay announcements
+* [x] Gameplay participant management
+* [x] Private gameplay channels
+* [x] Join and leave gameplay controls
+* [x] Player limit management
+* [x] Gameplay cancellation
 * [ ] Automatic gameplay management
 * [ ] Additional server management features

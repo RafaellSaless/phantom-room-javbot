@@ -134,12 +134,12 @@ Conforme novas funcionalidades são implementadas, elas serão desenvolvidas em 
 * [x] Exclusão de canais de voz temporários
 * [x] Configuração de canais
 * [x] Gerenciamento de permissões
-* [ ] Agendamento de gameplays
-* [ ] Divulgação de gameplays
-* [ ] Gerenciamento de participantes
-* [ ] Canais de voz privados para gameplays
-* [ ] Controles para entrar e sair da gameplay
-* [ ] Gerenciamento do limite de jogadores
-* [ ] Cancelamento de gameplays
+* [x] Agendamento de gameplays
+* [x] Divulgação de gameplays
+* [x] Gerenciamento de participantes
+* [x] Canais privados para gameplays
+* [x] Controles para entrar e sair da gameplay
+* [x] Gerenciamento do limite de jogadores
+* [x] Cancelamento de gameplays
 * [ ] Gerenciamento automático de gameplays
 * [ ] Funcionalidades adicionais de gerenciamento do servidor
