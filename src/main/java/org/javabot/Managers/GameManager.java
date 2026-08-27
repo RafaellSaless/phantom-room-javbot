@@ -82,7 +82,8 @@ public class GameManager {
             String guildId,
             String jogo,
             String horario,
-            int maxParticipantes
+            int maxParticipantes,
+            GameSchedule schedule
     ) {
 
         String chatTextId =
@@ -154,7 +155,7 @@ public class GameManager {
                 )
                 .setActionRow(
                         Button.success(
-                                "game:participar",
+                                "game:participar:" + schedule.getId(),
                                 "🎮 Participar"
                         )
                 )
@@ -239,7 +240,8 @@ public class GameManager {
                             schedule.getGuildId(),
                             schedule.getJogo(),
                             schedule.getHorario(),
-                            schedule.getMaxParticipantes()
+                            schedule.getMaxParticipantes(),
+                            schedule
                     );
                 });
     }
@@ -365,6 +367,30 @@ public class GameManager {
                         )
                 )
                 .queue();
+    }
+
+    public static void adicionarPlayerAgendamento(String scheduleId, long userId, ButtonInteractionEvent event) {
+        GameSchedule schedule = getAgendamento(scheduleId);
+
+        if (schedule == null) {
+            event.reply("❌ Este agendamento não existe mais ou foi fechado.").setEphemeral(true).queue();
+            return;
+        }
+
+        if (schedule.possuiParticipante(userId)) {
+            event.reply("⚠️ Você já está participando deste agendamento!").setEphemeral(true).queue();
+            return;
+        }
+
+        boolean adicionado = schedule.adicionarParticipante(userId);
+
+        if (!adicionado) {
+            // Se retornar false, significa que atingiu o limite máximo (está cheio)
+            event.reply("❌ Este agendamento já está lotado!").setEphemeral(true).queue();
+            return;
+        }
+
+        event.reply("✅ Você entrou no agendamento com sucesso!").setEphemeral(true).queue();
     }
 
     /**

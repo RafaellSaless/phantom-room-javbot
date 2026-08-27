@@ -53,6 +53,14 @@ public class ButtonListener extends ListenerAdapter {
             }
         }
 
+        if (id.startsWith("game:participar:")) {
+            String scheduleId = id.replace("game:participar:", "");
+
+            long userId = event.getUser().getIdLong();
+
+            GameManager.adicionarPlayerAgendamento(scheduleId, userId, event);
+        }
+
         if (id.equals("game:marcar")) {
 
             Modal modal = Modal.create(
