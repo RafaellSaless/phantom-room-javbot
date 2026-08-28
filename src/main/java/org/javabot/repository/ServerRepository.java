@@ -69,6 +69,41 @@ public class ServerRepository {
         );
     }
 
+    public void createIfNotExists(String guildId) {
+
+        if (collection.find(new Document("_id", guildId)).first() == null) {
+
+            Document document = new Document("_id", guildId)
+                    .append("id_createtempcall", "")
+                    .append("id_schedulechannel", "")
+                    .append("schedules", new java.util.ArrayList<>());
+
+            collection.insertOne(document);
+        }
+    }
+
+    public String getCreateTempCallId(String guildId) {
+
+        Document server = getServer(guildId);
+
+        if (server == null) {
+            return null;
+        }
+
+        return server.getString("id_createtempcall");
+    }
+
+    public String getScheduleChannelId(String guildId) {
+
+        Document server = getServer(guildId);
+
+        if (server == null) {
+            return null;
+        }
+
+        return server.getString("id_schedulechannel");
+    }
+
     public void deleteServer(String guildId) {
 
         collection.deleteOne(
