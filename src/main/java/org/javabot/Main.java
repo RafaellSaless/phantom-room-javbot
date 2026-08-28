@@ -15,8 +15,8 @@ import java.util.EnumSet;
 public class Main {
 
     static void main(String[] args) {
+        Dotenv dotenv = Dotenv.configure().systemProperties().load();
 
-        Dotenv dotenv = Dotenv.load();
 
         String token = dotenv.get("DISCORD_TOKEN");
 
