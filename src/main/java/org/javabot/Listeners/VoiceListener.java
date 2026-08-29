@@ -2,6 +2,7 @@ package org.javabot.Listeners;
 
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.javabot.repository.ServerRepository;
 import org.jetbrains.annotations.NotNull;
 import org.javabot.Managers.ConfigManager;
 import org.javabot.Managers.TempVoiceManager;
@@ -13,18 +14,30 @@ import org.javabot.Managers.TempVoiceManager;
 public class VoiceListener extends ListenerAdapter {
 
     @Override
-    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+    public void onGuildVoiceUpdate(
+            @NotNull GuildVoiceUpdateEvent event
+    ) {
 
         if (event.getChannelJoined() != null) {
 
-            String guildId = event.getGuild().getId();
-            long canalEntradoId = event.getChannelJoined().getIdLong();
+            String guildId =
+                    event.getGuild().getId();
+
+            long canalEntradoId =
+                    event.getChannelJoined().getIdLong();
+
+            ServerRepository serverRepository =
+                    new ServerRepository();
 
             String canalConfiguradoId =
-                    ConfigManager.getCanalDoServidor(guildId, "chatvozid");
+                    serverRepository.getCreateTempCallId(
+                            guildId
+                    );
 
             if (canalConfiguradoId != null &&
-                    canalConfiguradoId.equals(String.valueOf(canalEntradoId))) {
+                    canalConfiguradoId.equals(
+                            String.valueOf(canalEntradoId)
+                    )) {
 
                 System.out.println(
                         event.getMember().getEffectiveName()

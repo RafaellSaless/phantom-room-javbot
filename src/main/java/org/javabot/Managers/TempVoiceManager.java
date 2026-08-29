@@ -8,14 +8,18 @@ import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import org.javabot.repository.TempVoiceRepository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TempVoiceManager {
 
     private static final Map<Long, TempVoice> calls = new HashMap<>();
 
+    private static final TempVoiceRepository repository =
+            new TempVoiceRepository();
 
     public static void criarCall(GuildVoiceUpdateEvent event) {
 
@@ -60,6 +64,8 @@ public class TempVoiceManager {
                         tempVoice
                 );
 
+                repository.save(tempVoice);
+
                 ConfigDMManager.enviarPainel(member, tempVoice);
             });
     }
@@ -96,6 +102,7 @@ public class TempVoiceManager {
 
         // Remove do sistema
         calls.remove(canalId);
+        repository.delete(canalId);
 
         System.out.println(
                 "Call temporária excluída: "
@@ -144,6 +151,8 @@ public class TempVoiceManager {
             TempVoice tempVoice
     ) {
 
+        Long canalId = tempVoice.getVoiceChannelId();
+
         Guild guild =
                 jda.getGuildById(
                         tempVoice.getGuildId()
@@ -155,7 +164,7 @@ public class TempVoiceManager {
 
         VoiceChannel voiceChannel =
                 guild.getVoiceChannelById(
-                        tempVoice.getVoiceChannelId()
+                        canalId
                 );
 
         if (voiceChannel != null) {
@@ -163,8 +172,10 @@ public class TempVoiceManager {
         }
 
         calls.remove(
-                tempVoice.getVoiceChannelId()
+                canalId
         );
+
+        repository.delete(canalId);
     }
 
     public static void alterarNome(
@@ -276,6 +287,53 @@ public class TempVoiceManager {
             ).setDenied(
                     Permission.VOICE_CONNECT
             ).queue();
+        }
+    }
+
+    public static void carregarCalls(JDA jda) {
+
+        List<TempVoice> callsSalvas =
+                repository.getAll();
+
+        for (TempVoice tempVoice : callsSalvas) {
+
+            Guild guild =
+                    jda.getGuildById(
+                            tempVoice.getGuildId()
+                    );
+
+            if (guild == null) {
+
+                repository.delete(
+                        tempVoice.getVoiceChannelId()
+                );
+
+                continue;
+            }
+
+            VoiceChannel voiceChannel =
+                    guild.getVoiceChannelById(
+                            tempVoice.getVoiceChannelId()
+                    );
+
+            if (voiceChannel == null) {
+
+                repository.delete(
+                        tempVoice.getVoiceChannelId()
+                );
+
+                continue;
+            }
+
+            calls.put(
+                    tempVoice.getVoiceChannelId(),
+                    tempVoice
+            );
+
+            System.out.println(
+                    "Call temporária restaurada: "
+                            + tempVoice.getVoiceChannelId()
+            );
         }
     }
 
