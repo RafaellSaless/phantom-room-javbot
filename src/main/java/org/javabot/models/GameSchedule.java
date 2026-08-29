@@ -1,4 +1,4 @@
-package org.javabot.Managers;
+package org.javabot.models;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class GameSchedule {
     private String configId;
     private String messageId;
 
-    private List<String> jogadores = new ArrayList<>();
+    private List<String> jogadores;
 
     public GameSchedule(
             String id,
@@ -25,14 +25,14 @@ public class GameSchedule {
             String horario,
             int maxParticipantes
     ) {
-
         this.id = id;
         this.owner = owner;
         this.jogo = jogo;
         this.horario = horario;
         this.maxParticipantes = maxParticipantes;
 
-        jogadores.add(owner);
+        this.jogadores = new ArrayList<>();
+        this.jogadores.add(owner);
     }
 
     public String getId() {
@@ -89,41 +89,5 @@ public class GameSchedule {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
-    }
-
-    public boolean ehDono(long userId) {
-        return owner.equals(String.valueOf(userId));
-    }
-
-    public boolean possuiParticipante(long userId) {
-        return jogadores.contains(String.valueOf(userId));
-    }
-
-    public boolean adicionarParticipante(long userId) {
-
-        String playerId = String.valueOf(userId);
-
-        if (jogadores.contains(playerId)) {
-            return false;
-        }
-
-        if (jogadores.size() >= maxParticipantes) {
-            return false;
-        }
-
-        jogadores.add(playerId);
-
-        return true;
-    }
-
-    public boolean removerParticipante(long userId) {
-
-        String playerId = String.valueOf(userId);
-
-        return jogadores.remove(playerId);
-    }
-
-    public int quantidadeParticipantes() {
-        return jogadores.size();
     }
 }

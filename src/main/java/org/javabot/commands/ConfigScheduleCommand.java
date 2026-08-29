@@ -2,8 +2,8 @@ package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.javabot.Managers.ConfigManager;
 import org.javabot.Managers.Command;
+import org.javabot.repository.ServerRepository;
 
 import java.awt.*;
 
@@ -71,11 +71,24 @@ public class ConfigScheduleCommand extends Commands {
         if (channel != null) {
             canalId = arg;
 
-            // Pega o ID do servidor atual
             String guildId = event.getGuild().getId();
 
-            // "chatvozid" or "chattextid"
-            ConfigManager.salvarConfig(guildId, "chattextid", canalId);
+            ServerRepository repository = new ServerRepository();
+
+            repository.createIfNotExists(guildId);
+
+            String createTempCallId =
+                    repository.getCreateTempCallId(guildId);
+
+            if (createTempCallId == null) {
+                createTempCallId = "";
+            }
+
+            repository.configureServer(
+                    guildId,
+                    createTempCallId,
+                    canalId
+            );
 
             EmbedBuilder canalConfigurad = new EmbedBuilder();
             canalConfigurad.setColor(Color.green);

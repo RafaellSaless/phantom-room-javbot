@@ -9,14 +9,15 @@ import org.javabot.Listeners.CommandListener;
 import org.javabot.Listeners.ModalListener;
 import org.javabot.Listeners.VoiceListener;
 import org.javabot.Managers.CommandManager;
+import org.javabot.Managers.TempVoiceManager;
 
 import java.util.EnumSet;
 
 public class Main {
 
-    static void main(String[] args) {
+    static void main(String[] args) throws InterruptedException {
+        Dotenv dotenv = Dotenv.configure().systemProperties().load();
 
-        Dotenv dotenv = Dotenv.load();
 
         String token = dotenv.get("DISCORD_TOKEN");
 
@@ -33,7 +34,10 @@ public class Main {
                         new ButtonListener(),
                         new ModalListener()
                 )
-                .build();
+                .build()
+                .awaitReady();
+
+        TempVoiceManager.carregarCalls(jda);
 
     }
 }

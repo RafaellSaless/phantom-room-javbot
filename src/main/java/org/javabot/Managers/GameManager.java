@@ -10,20 +10,25 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import org.javabot.Main;
+import org.bson.Document;
+import org.javabot.repository.ScheduleRepository;
+import org.javabot.repository.ServerRepository;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class GameManager {
 
-    private static final Map<String, GameSchedule> agendamentos = new HashMap<>();
+    private static final ServerRepository serverRepository =
+            new ServerRepository();
 
+    private static final ScheduleRepository scheduleRepository =
+            new ScheduleRepository();
     /*
      * Guarda temporariamente:
      *
@@ -87,9 +92,8 @@ public class GameManager {
     ) {
 
         String chatTextId =
-                ConfigManager.getCanalDoServidor(
-                        guildId,
-                        "chattextid"
+                serverRepository.getScheduleChannelId(
+                        guildId
                 );
 
         if (chatTextId == null) {
@@ -159,7 +163,18 @@ public class GameManager {
                                 "🎮 Participar"
                         )
                 )
-                .queue();
+                .queue(message -> {
+
+                    schedule.setMessageId(
+                            message.getId()
+                    );
+
+                    scheduleRepository.updateMessageId(
+                            guildId,
+                            schedule.getId(),
+                            message.getId()
+                    );
+                });
     }
 
     public static void criarAgendamento(
@@ -170,23 +185,20 @@ public class GameManager {
             int maxParticipantes
     ) {
 
-        String scheduleId = UUID.randomUUID().toString();
+        String scheduleId =
+                UUID.randomUUID().toString();
 
         GameSchedule schedule =
                 new GameSchedule(
                         scheduleId,
-                        guild.getId(),
-                        ownerId,
+                        String.valueOf(ownerId),
                         jogo,
                         horario,
                         maxParticipantes
                 );
 
-        // O criador já é participante
-        schedule.adicionarParticipante(ownerId);
-
-        agendamentos.put(
-                scheduleId,
+        scheduleRepository.addSchedule(
+                guild.getId(),
                 schedule
         );
 
@@ -194,6 +206,12 @@ public class GameManager {
                 guild.getMemberById(ownerId);
 
         if (owner == null) {
+
+            scheduleRepository.deleteSchedule(
+                    guild.getId(),
+                    scheduleId
+            );
+
             return;
         }
 
@@ -209,7 +227,6 @@ public class GameManager {
                             category.getId()
                     );
 
-                    // @everyone não pode visualizar
                     category
                             .upsertPermissionOverride(
                                     guild.getPublicRole()
@@ -219,7 +236,6 @@ public class GameManager {
                             )
                             .queue();
 
-                    // Criador recebe acesso
                     category
                             .upsertPermissionOverride(owner)
                             .grant(
@@ -234,15 +250,6 @@ public class GameManager {
                             schedule
                     );
 
-                    publicarAgendamento(
-                            guild.getJDA(),
-                            schedule.getOwnerId(),
-                            schedule.getGuildId(),
-                            schedule.getJogo(),
-                            schedule.getHorario(),
-                            schedule.getMaxParticipantes(),
-                            schedule
-                    );
                 });
     }
 
@@ -258,6 +265,11 @@ public class GameManager {
                             channel.getId()
                     );
 
+                    atualizarIdsNoBanco(
+                            category.getGuild().getId(),
+                            schedule
+                    );
+
                     channel.sendMessage(
                             "🎮 **"
                                     + schedule.getJogo()
@@ -269,7 +281,6 @@ public class GameManager {
                     ).queue();
                 });
 
-
         category.createTextChannel("configuracoes")
                 .queue(channel -> {
 
@@ -277,19 +288,51 @@ public class GameManager {
                             channel.getId()
                     );
 
+                    atualizarIdsNoBanco(
+                            category.getGuild().getId(),
+                            schedule
+                    );
+
                     enviarConfiguracoes(
                             channel,
                             schedule
                     );
+                    atualizarIdsNoBanco(
+                            category.getGuild().getId(),
+                            schedule
+                    );
+
+                    publicarAgendamento(
+                            category.getGuild().getJDA(),
+                            Long.parseLong(schedule.getOwner()),
+                            category.getGuild().getId(),
+                            schedule.getJogo(),
+                            schedule.getHorario(),
+                            schedule.getMaxParticipantes(),
+                            schedule
+                    );
                 });
+    }
+
+    private static void atualizarIdsNoBanco(
+            String guildId,
+            GameSchedule schedule
+    ) {
+
+        scheduleRepository.updateChannelIds(
+                guildId,
+                schedule.getId(),
+                schedule.getCategoryId(),
+                schedule.getChatId(),
+                schedule.getConfigId()
+        );
     }
 
     public static void deletarCanais(
             ButtonInteractionEvent event,
             GameSchedule schedule
     ) {
-
-        Guild guild = event.getJDA().getGuildById(schedule.getGuildId());
+        Guild guild = event.getGuild();
 
         if (guild != null) {
             // 1. Deleta o chat (usando a String chatId)
@@ -310,6 +353,11 @@ public class GameManager {
                 if (category != null) category.delete().queue();
             }
         }
+
+        scheduleRepository.deleteSchedule(
+                guild.getId(),
+                schedule.getId()
+        );
 
     }
 
@@ -369,46 +417,195 @@ public class GameManager {
                 .queue();
     }
 
-    public static void adicionarPlayerAgendamento(String scheduleId, long userId, ButtonInteractionEvent event) {
-        GameSchedule schedule = getAgendamento(scheduleId);
+    public static void adicionarPlayerAgendamento(
+            String guildId,
+            String scheduleId,
+            long userId,
+            ButtonInteractionEvent event
+    ) {
+
+        GameSchedule schedule =
+                getAgendamento(
+                        guildId,
+                        scheduleId
+                );
 
         if (schedule == null) {
-            event.reply("❌ Este agendamento não existe mais ou foi fechado.").setEphemeral(true).queue();
+
+            event.reply(
+                            "❌ Este agendamento não existe mais ou foi fechado."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
+            return;
+        }
+
+        if (schedule.ehDono(userId)) {
+
+            event.reply(
+                            "⚠️ Você já é o criador deste agendamento!"
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
             return;
         }
 
         if (schedule.possuiParticipante(userId)) {
-            event.reply("⚠️ Você já está participando deste agendamento!").setEphemeral(true).queue();
+
+            event.reply(
+                            "⚠️ Você já está participando deste agendamento!"
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
             return;
         }
 
-        boolean adicionado = schedule.adicionarParticipante(userId);
+        boolean adicionado =
+                scheduleRepository.addPlayer(
+                        guildId,
+                        scheduleId,
+                        String.valueOf(userId)
+                );
 
         if (!adicionado) {
-            // Se retornar false, significa que atingiu o limite máximo (está cheio)
-            event.reply("❌ Este agendamento já está lotado!").setEphemeral(true).queue();
+
+            event.reply(
+                            "❌ Este agendamento já está lotado!"
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
             return;
         }
 
-        event.reply("✅ Você entrou no agendamento com sucesso!").setEphemeral(true).queue();
+        event.reply(
+                        "✅ Você entrou no agendamento com sucesso!"
+                )
+                .setEphemeral(true)
+                .queue();
     }
 
-    /**
-     * Busca um agendamento pelo seu ID único (UUID).
-     * @param scheduleId O ID do agendamento.
-     * @return O objeto GameSchedule correspondente, ou null se não encontrar.
-     */
-    public static GameSchedule getAgendamento(String scheduleId) {
-        return agendamentos.get(scheduleId);
+    public static void removerPlayerAgendamento(
+            String guildId,
+            String scheduleId,
+            long userId,
+            ButtonInteractionEvent event
+    ) {
+
+        GameSchedule schedule =
+                getAgendamento(
+                        guildId,
+                        scheduleId
+                );
+
+        if (schedule == null) {
+
+            event.reply(
+                            "❌ Este agendamento não existe mais ou foi fechado."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
+            return;
+        }
+
+        if (schedule.ehDono(userId)) {
+
+            event.reply(
+                            "❌ O criador não pode sair do próprio agendamento."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
+            return;
+        }
+
+        boolean removido =
+                scheduleRepository.removePlayer(
+                        guildId,
+                        scheduleId,
+                        String.valueOf(userId)
+                );
+
+        if (!removido) {
+
+            event.reply(
+                            "⚠️ Você não está participando deste agendamento."
+                    )
+                    .setEphemeral(true)
+                    .queue();
+
+            return;
+        }
+
+        event.reply(
+                        "✅ Você saiu do agendamento."
+                )
+                .setEphemeral(true)
+                .queue();
     }
 
-    /**
-     * Remove um agendamento do mapa global.
-     * @param scheduleId O ID do agendamento que será deletado.
-     */
-    public static void removerAgendamento(String scheduleId) {
-        agendamentos.remove(scheduleId);
-    }
+    public static GameSchedule getAgendamento(
+            String guildId,
+            String scheduleId
+    ) {
 
+        Document document =
+                scheduleRepository.getSchedule(
+                        guildId,
+                        scheduleId
+                );
+
+        if (document == null) {
+            return null;
+        }
+
+        GameSchedule schedule =
+                new GameSchedule(
+                        document.getString("id"),
+                        document.getString("owner"),
+                        document.getString("jogo"),
+                        document.getString("horario"),
+                        document.getInteger(
+                                "maxparticipantes"
+                        )
+                );
+
+        schedule.setCategoryId(
+                document.getString("categoryid")
+        );
+
+        schedule.setChatId(
+                document.getString("chatid")
+        );
+
+        schedule.setConfigId(
+                document.getString("configid")
+        );
+
+        schedule.setMessageId(
+                document.getString("messageid")
+        );
+
+        List<String> jogadores =
+                document.getList(
+                        "jogadores",
+                        String.class
+                );
+
+        if (jogadores != null) {
+
+            schedule.getJogadores().clear();
+
+            schedule.getJogadores().addAll(
+                    jogadores
+            );
+        }
+
+        return schedule;
+    }
 }
 

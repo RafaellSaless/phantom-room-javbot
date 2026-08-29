@@ -42,7 +42,9 @@ public class ButtonListener extends ListenerAdapter {
         if (id.startsWith("game:fechar:")) {
             String scheduleId = id.replace("game:fechar:", "");
 
-            GameSchedule schedule = GameManager.getAgendamento(scheduleId); // (Ou o nome do método que você usa para buscar)
+            GameSchedule schedule =
+                    GameManager.getAgendamento( event.getGuild().getId(), scheduleId );
+
 
             long userIdClick = event.getUser().getIdLong();
 
@@ -57,7 +59,6 @@ public class ButtonListener extends ListenerAdapter {
             }
 
             GameManager.deletarCanais(event, schedule);
-            GameManager.removerAgendamento(scheduleId);
 
         }
 
@@ -67,7 +68,12 @@ public class ButtonListener extends ListenerAdapter {
 
             long userId = event.getUser().getIdLong();
 
-            GameManager.adicionarPlayerAgendamento(scheduleId, userId, event);
+            GameManager.adicionarPlayerAgendamento(
+                    event.getGuild().getId(),
+                    scheduleId,
+                    userId,
+                    event
+            );
         }
 
         if (id.equals("game:marcar")) {
@@ -123,6 +129,24 @@ public class ButtonListener extends ListenerAdapter {
                     .build();
 
             event.replyModal(modal).queue();
+
+            return;
+        }
+
+        if (id.startsWith("game:sair:")) {
+
+            String scheduleId =
+                    id.replace("game:sair:", "");
+
+            long userId =
+                    event.getUser().getIdLong();
+
+            GameManager.removerPlayerAgendamento(
+                    event.getGuild().getId(),
+                    scheduleId,
+                    userId,
+                    event
+            );
 
             return;
         }
