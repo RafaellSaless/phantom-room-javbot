@@ -131,15 +131,9 @@ Conforme novas funcionalidades são implementadas, elas serão desenvolvidas em 
 * [x] Configuração inicial do projeto
 * [x] Arquitetura de comandos
 * [x] Criação de canais de voz temporários
-* [x] Exclusão de canais de voz temporários
-* [x] Configuração de canais
-* [x] Gerenciamento de permissões
 * [x] Agendamento de gameplays
 * [x] Divulgação de gameplays
-* [x] Gerenciamento de participantes
 * [x] Canais privados para gameplays
 * [x] Controles para entrar e sair da gameplay
 * [x] Gerenciamento do limite de jogadores
-* [x] Cancelamento de gameplays
-* [ ] Gerenciamento automático de gameplays
-* [ ] Funcionalidades adicionais de gerenciamento do servidor
+* [ ] Permissão para comandos

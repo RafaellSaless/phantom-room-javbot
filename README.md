@@ -131,15 +131,9 @@ As new features are implemented, they will be developed in dedicated branches an
 * [x] Initial project configuration
 * [x] Command architecture
 * [x] Temporary voice channel creation
-* [x] Temporary voice channel deletion
-* [x] Channel configuration
-* [x] Permission management
 * [x] Gameplay scheduling
 * [x] Gameplay announcements
-* [x] Gameplay participant management
 * [x] Private gameplay channels
 * [x] Join and leave gameplay controls
 * [x] Player limit management
-* [x] Gameplay cancellation
-* [ ] Automatic gameplay management
-* [ ] Additional server management features
+* [ ] commands permissions
