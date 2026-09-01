@@ -1,6 +1,7 @@
 package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.javabot.Managers.Command;
 import org.javabot.repository.ServerRepository;
@@ -21,6 +22,13 @@ public class ConfigScheduleCommand extends Commands {
 
     @Override
     public void execute(MessageReceivedEvent event) {
+
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            event.getChannel()
+                    .sendMessage("❌ Apenas administradores podem configurar o sistema de tickets.")
+                    .queue();
+            return;
+        }
 
         EmbedBuilder idFaltante = new EmbedBuilder();
         idFaltante.setColor(Color.red);

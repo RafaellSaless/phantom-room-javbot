@@ -24,6 +24,13 @@ public class ConfigTicketCommand extends Commands {
     @Override
     public void execute(MessageReceivedEvent event) {
 
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            event.getChannel()
+                    .sendMessage("❌ Apenas administradores podem configurar o sistema de tickets.")
+                    .queue();
+            return;
+        }
+
         if (event.getGuild() == null) {
             return;
         }
