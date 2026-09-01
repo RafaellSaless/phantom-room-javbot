@@ -3,53 +3,49 @@ package org.javabot.repository;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.javabot.database.MongoManager;
 
-/**
- * {
- *   _id: guildId,
- *   ticket: {
- *      channelId: "...",
- *      messageId: "...",
- *      categoryId: "...",
- *      nextTicketNumber: 1
- *   }
- * }
- */
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
+
+/** Repository responsável pela configuração e numeração dos tickets. */
 public class TicketRepository {
 
     private final MongoCollection<Document> collection;
 
     public TicketRepository() {
-        collection = MongoManager
-                .getDatabase()
-                .getCollection("ticket_configs");
+        collection = MongoManager.getDatabase().getCollection("servers");
     }
 
-    public void saveConfiguration(
+    public void configureTicket(
             String guildId,
             String channelId,
             String messageId,
-            String categoryId
+            String categoryId,
+            String roleId
     ) {
-        Document ticket = new Document()
-                .append("channelId", channelId)
-                .append("messageId", messageId)
-                .append("categoryId", categoryId)
-                .append("nextTicketNumber", 1);
+        Bson update = Updates.combine(
+                Updates.set("ticket.channelId", channelId),
+                Updates.set("ticket.messageId", messageId),
+                Updates.set("ticket.categoryId", categoryId),
+                Updates.set("ticket.roleId", roleId),
+                Updates.set("ticket.nextTicketNumber", 0L)
+        );
 
         collection.updateOne(
-                new Document("_id", guildId),
-                new Document("$set", new Document("ticket", ticket)),
+                eq("_id", guildId),
+                update,
                 new com.mongodb.client.model.UpdateOptions().upsert(true)
         );
     }
 
-    public Document getConfiguration(String guildId) {
-        Document server = collection.find(
-                new Document("_id", guildId)
-        ).first();
+    /** Retorna a configuração de tickets ou null se não estiver configurada. */
+    public Document getTicketConfig(String guildId) {
+        Document server = collection.find(eq("_id", guildId)).first();
 
         if (server == null) {
             return null;
@@ -58,56 +54,28 @@ public class TicketRepository {
         return server.get("ticket", Document.class);
     }
 
-    public String getChannelId(String guildId) {
-        Document ticket = getConfiguration(guildId);
-        return ticket == null ? null : ticket.getString("channelId");
-    }
 
-    public String getMessageId(String guildId) {
-        Document ticket = getConfiguration(guildId);
-        return ticket == null ? null : ticket.getString("messageId");
-    }
-
-    public String getCategoryId(String guildId) {
-        Document ticket = getConfiguration(guildId);
-        return ticket == null ? null : ticket.getString("categoryId");
-    }
-
-    /**
-     * Reserva o próximo número de ticket de forma atômica.
-     * Preparado para a implementação da criação dos tickets.
-     */
-    public int getAndIncrementTicketNumber(String guildId) {
+    public Long reserveNextTicketNumber(String guildId) {
         Document result = collection.findOneAndUpdate(
-                new Document("_id", guildId),
-                new Document("$inc", new Document("ticket.nextTicketNumber", 1)),
+                and(
+                        eq("_id", guildId),
+                        exists("ticket.categoryId", true)
+                ),
+                Updates.inc("ticket.nextTicketNumber", 1L),
                 new FindOneAndUpdateOptions()
-                        .upsert(false)
-                        .returnDocument(ReturnDocument.BEFORE)
+                        .returnDocument(ReturnDocument.AFTER)
         );
 
         if (result == null) {
-            throw new IllegalStateException(
-                    "Configuração de ticket não encontrada para o servidor."
-            );
+            return null;
         }
 
         Document ticket = result.get("ticket", Document.class);
-
         if (ticket == null) {
-            throw new IllegalStateException(
-                    "Configuração de ticket inválida para o servidor."
-            );
+            return null;
         }
 
-        Integer number = ticket.getInteger("nextTicketNumber");
-
-        if (number == null) {
-            throw new IllegalStateException(
-                    "Contador de tickets não encontrado."
-            );
-        }
-
-        return number;
+        Number number = ticket.get("nextTicketNumber", Number.class);
+        return number == null ? null : number.longValue();
     }
 }

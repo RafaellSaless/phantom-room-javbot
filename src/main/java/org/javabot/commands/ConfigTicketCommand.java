@@ -2,6 +2,7 @@ package org.javabot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -11,18 +12,10 @@ import org.javabot.repository.TicketRepository;
 
 import java.awt.Color;
 
-/**
- * Configura o painel do sistema de tickets de um servidor.
- *
- * Uso:
- * !configticket <ID_DO_CANAL> <ID_DA_CATEGORIA> <mensagem>
- *
- * Exemplo:
- * !configticket 123456789012345678 987654321098765432 Precisa de ajuda? Clique no botão abaixo.
- */
+/** Configura o painel e a categoria/cargo usados pelo sistema de tickets. */
 @Command(
         name = "configticket",
-        description = "Configura o canal, categoria e painel do sistema de tickets"
+        description = "Configura o painel de tickets, categoria e cargo de atendimento"
 )
 public class ConfigTicketCommand extends Commands {
 
@@ -36,111 +29,97 @@ public class ConfigTicketCommand extends Commands {
         }
 
 
-        String[] parts = event.getMessage()
-                .getContentRaw()
-                .trim()
-                .split("\\s+", 4);
+        String[] parts = event.getMessage().getContentRaw().split("\\s+");
 
-        if (parts.length < 4) {
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setColor(Color.RED)
-                    .setTitle("⚡ !configticket")
-                    .setDescription("Configure o painel de tickets.")
-                    .addField(
-                            "Uso",
-                            "`!configticket <ID_DO_CANAL> <ID_DA_CATEGORIA> <mensagem>`",
-                            false
-                    )
-                    .addField(
-                            "Exemplo",
-                            "`!configticket 123456789012345678 987654321098765432 Precisa de ajuda? Clique no botão abaixo.`",
-                            false
-                    );
-
-            event.getChannel().sendMessageEmbeds(embed.build()).queue();
+        if (parts.length < 5) {
+            event.getChannel().sendMessage(
+                    "❌ Uso correto: `!configticket <canalId> <categoriaId> <cargoId> <mensagem>`"
+            ).queue();
             return;
         }
 
-        String channelId = limparIdDiscord(parts[1]);
-        String categoryId = limparIdDiscord(parts[2]);
-        String panelMessage = parts[3].trim();
+        String serverName = event.getGuild().getName();
+        String channelId = limparIdDiscord( parts[1] );
+        String categoryId = limparIdDiscord( parts[2] );
+        String roleId = limparIdDiscord( parts[3] );
 
-        if (!channelId.matches("\\d+") || !categoryId.matches("\\d+")) {
-            event.getChannel()
-                    .sendMessage("❌ O ID do canal ou da categoria é inválido.")
-                    .queue();
-            return;
+        StringBuilder messageBuilder = new StringBuilder();
+        for (int i = 4; i < parts.length; i++) {
+            if (i > 4) {
+                messageBuilder.append(" ");
+            }
+            messageBuilder.append(parts[i]);
         }
 
-        if (panelMessage.isBlank()) {
-            event.getChannel()
-                    .sendMessage("❌ A mensagem do painel não pode estar vazia.")
-                    .queue();
-            return;
-        }
+        String panelMessage = messageBuilder.toString().trim();
 
         TextChannel channel = event.getGuild().getTextChannelById(channelId);
         Category category = event.getGuild().getCategoryById(categoryId);
+        Role role = event.getGuild().getRoleById(roleId);
+
+
 
         if (channel == null) {
-            event.getChannel()
-                    .sendMessage("❌ O ID informado não corresponde a um canal de texto deste servidor.")
-                    .queue();
+            event.getChannel().sendMessage("❌ O ID informado não corresponde a um canal de texto deste servidor.").queue();
             return;
         }
 
         if (category == null) {
-            event.getChannel()
-                    .sendMessage("❌ O ID informado não corresponde a uma categoria deste servidor.")
-                    .queue();
+            event.getChannel().sendMessage("❌ O ID informado não corresponde a uma categoria deste servidor.").queue();
             return;
         }
 
-        // Se já existir um painel configurado, tenta apagar a mensagem antiga.
-        String oldChannelId = repository.getChannelId(event.getGuild().getId());
-        String oldMessageId = repository.getMessageId(event.getGuild().getId());
-
-        if (oldChannelId != null && oldMessageId != null) {
-            TextChannel oldChannel = event.getGuild().getTextChannelById(oldChannelId);
-
-            if (oldChannel != null) {
-                oldChannel.deleteMessageById(oldMessageId).queue(
-                        ignored -> {},
-                        ignored -> {}
-                );
-            }
+        if (role == null) {
+            event.getChannel().sendMessage("❌ O ID informado não corresponde a um cargo deste servidor.").queue();
+            return;
         }
 
-        channel.sendMessage(panelMessage)
-                .setActionRow(
-                        Button.primary(
-                                "ticket:create",
-                                "🎫 Criar Ticket"
-                        )
-                )
+        if (panelMessage.isBlank()) {
+            event.getChannel().sendMessage("❌ A mensagem do painel não pode ficar vazia.").queue();
+            return;
+        }
+
+
+        EmbedBuilder createTicket = new EmbedBuilder()
+                .setColor(Color.GREEN)
+                .setTitle("🎫 Sistema de Tickets - " + serverName)
+                .setDescription(panelMessage);
+
+        String bannerUrl = event.getGuild().getBannerUrl();
+
+        if (bannerUrl != null) {
+            createTicket.setImage(bannerUrl);
+        } else {
+            String botAvatarUrl = event.getJDA().getSelfUser().getEffectiveAvatarUrl();
+            createTicket.setImage(botAvatarUrl);
+        }
+
+
+
+                channel.sendMessageEmbeds(createTicket.build())
+                .setActionRow(Button.primary("ticket:create", "🎫 Criar Ticket"))
                 .queue(message -> {
 
-                    repository.saveConfiguration(
-                            event.getGuild().getId(),
-                            channel.getId(),
-                            message.getId(),
-                            category.getId()
-                    );
+                            repository.configureTicket(
+                                    event.getGuild().getId(),
+                                    channel.getId(),
+                                    message.getId(),
+                                    category.getId(),
+                                    role.getId()
+                            );
 
-                    EmbedBuilder success = new EmbedBuilder()
-                            .setColor(Color.GREEN)
-                            .setTitle("⚡ !configticket")
-                            .setDescription("O sistema de tickets foi configurado com sucesso.")
-                            .addField("Canal", channel.getAsMention(), true)
-                            .addField("Categoria", category.getName(), true)
-                            .addField("Painel", message.getJumpUrl(), false);
+                            EmbedBuilder success = new EmbedBuilder()
+                                    .setColor(Color.GREEN)
+                                    .setTitle("🎫 Sistema de Tickets")
+                                    .setDescription("O sistema de tickets foi configurado com sucesso.")
+                                    .addField("Canal", channel.getAsMention(), true)
+                                    .addField("Categoria", category.getName(), true)
+                                    .addField("Cargo", role.getAsMention(), true);
 
-                    event.getChannel()
-                            .sendMessageEmbeds(success.build())
-                            .queue();
-                }, error -> event.getChannel()
-                        .sendMessage("❌ Não consegui enviar o painel para o canal informado. Verifique minhas permissões.")
-                        .queue());
+                            event.getChannel().sendMessageEmbeds(success.build()).queue();
+                        }, failure ->
+                                event.getChannel().sendMessage("❌ Não consegui enviar a mensagem no canal informado. Verifique as permissões do bot.").queue()
+                );
     }
 
     private String limparIdDiscord(String value) {
@@ -148,6 +127,11 @@ public class ConfigTicketCommand extends Commands {
                 .replace("<", "")
                 .replace(">", "")
                 .replace("#", "")
+                .replace("@", "")
+                .replace("&", "")
+                .replace("(", "")
+                .replace(")", "")
                 .trim();
     }
+
 }
