@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -25,7 +26,7 @@ import java.awt.*;
  * Estende o {@link ListenerAdapter} da biblioteca JDA.
  */
 public class ButtonListener extends ListenerAdapter {
-    private final TicketRepository repository = new TicketRepository();
+    private final TicketRepository Ticketrepository = new TicketRepository();
     /**
      * Função para identifcar a intereção com os botões da DM
      * @param event evento a ter interação
@@ -204,10 +205,8 @@ public class ButtonListener extends ListenerAdapter {
 
         if(id.equalsIgnoreCase("ticket:create")) {
 
-
-
             String guildId = event.getGuild().getId();
-            Document config = repository.getTicketConfig(guildId);
+            Document config = Ticketrepository.getTicketConfig(guildId);
 
             if (config == null) {
                 event.reply("❌ O sistema de tickets ainda não foi configurado neste servidor.")
@@ -236,7 +235,7 @@ public class ButtonListener extends ListenerAdapter {
                 return;
             }
 
-            Long ticketNumber = repository.reserveNextTicketNumber(guildId);
+            Long ticketNumber = Ticketrepository.reserveNextTicketNumber(guildId);
 
             if (ticketNumber == null) {
                 event.reply("❌ Não foi possível reservar um número para o ticket.")
@@ -260,6 +259,39 @@ public class ButtonListener extends ListenerAdapter {
                     );
 
         }
+
+        if(id.equalsIgnoreCase("ticket:fechar")) {
+            TextChannel channel = event.getChannel().asTextChannel();
+            Member member = event.getMember();
+            event.deferEdit();
+
+
+            channel.upsertPermissionOverride(member)
+                    .deny(Permission.MESSAGE_SEND)
+                    .queue();
+
+            channel.sendMessage("Ticket fechado!").queue();
+
+        }
+
+        if(id.equalsIgnoreCase("ticket:deletar")) {
+            TextChannel channel = event.getChannel().asTextChannel();
+            Member member = event.getMember();
+
+            event.deferEdit();
+            String roleId = TicketRepository.getRoleId(event.getMessage().getGuildId());
+
+            boolean hasRole = member.getRoles().stream().anyMatch(role -> role.getId().equals(roleId));
+            boolean isAdmin = member.hasPermission(Permission.ADMINISTRATOR);
+
+            if(!hasRole && !isAdmin) {
+                return;
+            }
+
+            channel.delete().queue();
+
+        }
+
     }
 
 
@@ -431,7 +463,12 @@ public class ButtonListener extends ListenerAdapter {
             ticketsucess.setImage(botAvatarUrl);
         }
 
-        channel.sendMessageEmbeds(ticketsucess.build()).queue();
+        channel.sendMessageEmbeds(ticketsucess.build())
+        .setActionRow(
+                Button.primary("ticket:fechar", "🔒FECHAR TICKET "),
+                Button.secondary("ticket:deletar", "🗑️DELETAR TICKET")
+        )
+        .queue();
         channel.sendMessage(supportRole.getAsMention()).queue();
     }
 }
