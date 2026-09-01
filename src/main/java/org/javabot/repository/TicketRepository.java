@@ -15,7 +15,7 @@ import static com.mongodb.client.model.Filters.exists;
 /** Repository responsável pela configuração e numeração dos tickets. */
 public class TicketRepository {
 
-    private final MongoCollection<Document> collection;
+    private static MongoCollection<Document> collection;
 
     public TicketRepository() {
         collection = MongoManager.getDatabase().getCollection("servers");
@@ -54,6 +54,17 @@ public class TicketRepository {
         return server.get("ticket", Document.class);
     }
 
+    public static String getRoleId(String guildId) {
+
+        Document server = collection.find(eq("_id", guildId)).first();
+
+        if ( server == null) {
+            return null;
+        }
+
+        return server.getString("ticket.roleId");
+
+    }
 
     public Long reserveNextTicketNumber(String guildId) {
         Document result = collection.findOneAndUpdate(
