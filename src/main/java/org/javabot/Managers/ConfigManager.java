@@ -1,67 +1,48 @@
 package org.javabot.Managers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import org.bson.Document;
+import org.javabot.repository.ServerRepository;
+import org.javabot.repository.TicketRepository;
 
 public class ConfigManager {
-    private static final String FILE_PATH = "config.json";
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    // Carrega todas as configurações: GuildId -> (ChaveConfig -> ValorId)
-    public static Map<String, Map<String, String>> carregarConfigs() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) {
-            return new HashMap<>();
-        }
+    private final ServerRepository serverRepository;
+    private final TicketRepository ticketRepository;
 
-        try (FileReader reader = new FileReader(file)) {
-            Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-            Map<String, Map<String, String>> configs = gson.fromJson(reader, type);
-            return configs != null ? configs : new HashMap<>();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new HashMap<>();
-        }
+    public ConfigManager() {
+        this.serverRepository = new ServerRepository();
+        this.ticketRepository = new TicketRepository();
     }
 
-    // Salva uma configuração específica (ex: chatvozid ou chattextid) para a guilda
-    public static void salvarConfig(String guildId, String tipoCanal, String canalId) {
-        Map<String, Map<String, String>> configs = carregarConfigs();
-
-        // Pega o mapa da guilda ou cria um novo se não existir
-        Map<String, String> dadosGuilda = configs.getOrDefault(guildId, new HashMap<>());
-
-        // Adiciona ou atualiza o tipo específico (ex: "chatvozid" = "1293139")
-        dadosGuilda.put(tipoCanal, canalId);
-
-        // Atualiza no mapa principal
-        configs.put(guildId, dadosGuilda);
-
-        try (FileWriter writer = new FileWriter(FILE_PATH)) {
-            gson.toJson(configs, writer);
-            System.out.println("Configuração salva com sucesso para a guilda: " + guildId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Document getServerConfig(String guildId) {
+        return serverRepository.getServer(guildId);
     }
 
-    // Pega um ID específico de uma guilda (ex: getCanalDoServidor(guildId, "chatvozid"))
-    public static String getCanalDoServidor(String guildId, String tipoCanal) {
-        Map<String, Map<String, String>> configs = carregarConfigs();
-        Map<String, String> dadosGuilda = configs.get(guildId);
+    public String getCreateTempCallId(String guildId) {
+        return serverRepository.getCreateTempCallId(guildId);
+    }
 
-        if (dadosGuilda != null) {
-            return dadosGuilda.get(tipoCanal);
-        }
-        return null;
+    public String getScheduleChannelId(String guildId) {
+        return serverRepository.getScheduleChannelId(guildId);
+    }
+
+    public Document getTicketConfig(String guildId) {
+        return ticketRepository.getTicketConfig(guildId);
+    }
+
+    public boolean isCallConfigured(String guildId) {
+        String channelId = getCreateTempCallId(guildId);
+
+        return channelId != null && !channelId.isBlank();
+    }
+
+    public boolean isScheduleConfigured(String guildId) {
+        String channelId = getScheduleChannelId(guildId);
+
+        return channelId != null && !channelId.isBlank();
+    }
+
+    public boolean isTicketConfigured(String guildId) {
+        return getTicketConfig(guildId) != null;
     }
 }
