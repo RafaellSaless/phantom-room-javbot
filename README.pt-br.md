@@ -2,19 +2,21 @@
 
 [English](README.md)
 
-Um bot Discord em Java, limpo e modular, focado no gerenciamento de canais de voz temporários e na organização de gameplays.
+Um bot Discord em Java, limpo e modular, focado no gerenciamento de servidores, canais de voz temporários, tickets e organização de gameplays.
 
 > **Status do projeto:** Em desenvolvimento
 
 ## Visão Geral
 
-O Phantom Room JavBot é um bot Discord desenvolvido em Java com o objetivo de fornecer um sistema automatizado de canais de voz temporários e funcionalidades para gerenciamento de gameplays.
+O Phantom Room JavBot é um bot Discord desenvolvido em Java com o objetivo de fornecer funcionalidades automatizadas para gerenciamento de servidores, com foco em canais de voz, tickets e sessões de jogos.
 
-O conceito principal é simples: os usuários entram em um canal de voz específico, e o bot cria automaticamente uma sala temporária para eles. Quando a sala não está mais sendo utilizada, ela pode ser removida automaticamente, mantendo o servidor organizado e reduzindo canais desnecessários.
+O bot possui um sistema de canais de voz temporários onde os usuários podem receber automaticamente suas próprias salas de voz, ajudando a manter os servidores Discord organizados.
 
-O projeto também tem como objetivo fornecer um sistema de agendamento de gameplays, permitindo que os usuários organizem sessões de jogos, gerenciem participantes e criem automaticamente canais de voz privados para cada gameplay.
+O projeto também possui um sistema de gerenciamento de tickets e armazenamento persistente utilizando MongoDB, permitindo que configurações e dados dos sistemas continuem disponíveis mesmo após o bot ser reiniciado.
 
-O projeto está sendo desenvolvido com uma arquitetura modular, permitindo que novos comandos e funcionalidades sejam adicionados ao longo do tempo.
+O sistema de gerenciamento de gameplays também está em desenvolvimento, permitindo que os usuários agendem sessões de jogos, gerenciem participantes e criem canais de voz privados para cada gameplay.
+
+O projeto utiliza uma arquitetura modular, permitindo que novos sistemas e comandos sejam adicionados ao longo do desenvolvimento.
 
 ## Status Atual
 
@@ -25,76 +27,61 @@ O repositório está sendo construído de forma incremental, com cada branch rep
 ### Implementado
 
 * Estrutura inicial do projeto
-* Configuração básica do bot Discord
+* Configuração do bot Discord
 * Configuração de variáveis de ambiente
 * Arquitetura de comandos
-* Criação de canais de voz temporários
-* Exclusão de canais de voz temporários
-* Configuração de canais
+* Sistema de canais de voz temporários
+* Sistema de configuração do servidor
 * Gerenciamento de permissões
+* Sistema de tickets
+* Integração com banco de dados MongoDB
+* Persistência das configurações do servidor
 
 ### Em Desenvolvimento
 
-* Sistema de agendamento de gameplays
+* Permissões de comandos
 
-### Planejado
+## Principais Funcionalidades
 
-* Criação de gameplays através de comandos
-* Gerenciamento das informações da gameplay
-* Divulgação de gameplays
-* Gerenciamento de participantes
-* Canais de voz privados para gameplays
-* Controles para entrar e sair da gameplay
-* Gerenciamento do limite de jogadores
-* Cancelamento de gameplays
-* Gerenciamento automático dos canais de gameplay
-* Nomes personalizados para canais temporários
-* Controles específicos para usuários
-* Comando de ajuda
-* Funcionalidades adicionais de gerenciamento do servidor
+### Canais de Voz Temporários
 
-## Gerenciamento de Gameplays
+O bot cria e gerencia automaticamente canais de voz temporários para os usuários, fornecendo salas isoladas enquanto estiverem sendo utilizadas.
+
+### Sistema de Tickets
+
+O sistema de tickets permite que membros do servidor criem tickets de suporte através de uma interface interativa.
+
+Os tickets são organizados automaticamente utilizando categorias configuradas, com permissões gerenciadas para garantir que apenas usuários autorizados tenham acesso a cada ticket.
+
+### Gerenciamento de Gameplays
 
 O sistema de gerenciamento de gameplays permitirá que os membros do servidor organizem sessões de jogos diretamente através do bot.
 
-O usuário poderá criar uma gameplay informando:
+Os usuários poderão informar:
 
 * Nome do jogo
 * Quantidade máxima de jogadores
 * Horário agendado
 
-O bot então publicará as informações da gameplay em um canal configurado especificamente para anúncios de gameplays.
+O bot publicará a gameplay em um canal configurado e criará um canal de voz privado para a sessão.
 
-Cada gameplay terá controles interativos que permitirão aos usuários entrar ou sair da sessão.
+Os participantes poderão entrar ou sair da gameplay através de controles interativos. Os usuários que entrarem receberão automaticamente acesso ao canal de voz correspondente.
 
-Quando um usuário entrar em uma gameplay, o bot concederá automaticamente a ele permissão para acessar o canal de voz privado criado para aquela sessão.
+O sistema também será responsável pelo gerenciamento do limite de jogadores e do ciclo de vida da gameplay.
 
-### Exemplo
+### Banco de Dados
 
-Uma gameplay poderia ser criada com as seguintes informações:
+O bot utiliza MongoDB para armazenar de forma persistente informações importantes dos sistemas e configurações dos servidores.
 
-```text
-Jogo: PEAK
-Jogadores: 4
-Horário: 22:00
-```
-
-O bot publicará as informações da gameplay no canal configurado e criará um canal de voz privado para a sessão, por exemplo:
-
-```text
-🔒・RafaelSales — PEAK
-```
-
-Os usuários poderão entrar na gameplay através dos controles disponíveis. Assim que entrarem, receberão automaticamente acesso ao canal de voz correspondente.
-
-O sistema também controlará a quantidade de participantes, impedindo que novos usuários entrem quando o limite máximo de jogadores for atingido.
+O armazenamento em banco de dados permite que as configurações e informações continuem disponíveis mesmo após o bot ser reiniciado.
 
 ## Tecnologias
 
-| Tecnologia     | Finalidade                         |
-| -------------- | ---------------------------------- |
-| Java 17+       | Linguagem principal                |
-| JDA            | Integração com a API do Discord    |
+| Tecnologia     | Finalidade                            |
+| -------------- | ------------------------------------- |
+| Java 17+       | Linguagem principal                   |
+| JDA            | Integração com a API do Discord       |
+| MongoDB        | Armazenamento persistente             |
 | Maven / Gradle | Gerenciamento de build e dependências |
 
 ## Configuração
@@ -106,9 +93,10 @@ Crie um arquivo `.env` na raiz do projeto:
 ```env
 DISCORD_TOKEN=seu_token_do_bot_aqui
 PREFIX=seu_prefixo_aqui
+MONGODB_URI=sua_string_de_conexao_mongodb
 ```
 
-Nunca faça commit do token do bot ou de outras credenciais sensíveis no repositório.
+Nunca faça commit do token do bot, credenciais do banco de dados ou outras informações sensíveis no repositório.
 
 ## Intents do Discord
 
@@ -130,10 +118,12 @@ Conforme novas funcionalidades são implementadas, elas serão desenvolvidas em 
 
 * [x] Configuração inicial do projeto
 * [x] Arquitetura de comandos
-* [x] Criação de canais de voz temporários
+* [x] Sistema de canais de voz temporários
+* [x] Sistema de configuração do servidor
+* [x] Gerenciamento de permissões
+* [x] Sistema de tickets
+* [x] Integração com MongoDB
+* [x] Persistência de configurações
 * [x] Agendamento de gameplays
-* [x] Divulgação de gameplays
-* [x] Canais privados para gameplays
-* [x] Controles para entrar e sair da gameplay
-* [x] Gerenciamento do limite de jogadores
-* [ ] Permissão para comandos
+* [x] Gerenciamento de participantes
+* [ ] Funcionalidades adicionais de gerenciamento do servidor

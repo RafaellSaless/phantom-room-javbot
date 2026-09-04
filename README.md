@@ -2,19 +2,21 @@
 
 [Português (Brasil)](README.pt-br.md)
 
-A clean and modular Java Discord bot focused on managing temporary voice channels and organizing gaming sessions.
+A clean and modular Java Discord bot focused on server management, temporary voice channels, ticket management, and gameplay organization.
 
 > **Project status:** Under development
 
 ## Overview
 
-Phantom Room JavBot is a Discord bot developed in Java with the goal of providing an automated temporary voice channel system and gameplay management features.
+Phantom Room JavBot is a Discord bot developed in Java with the goal of providing automated server management features focused on voice channels, tickets, and gaming sessions.
 
-The core concept is simple: users join a designated voice channel, and the bot automatically creates a temporary room for them. When the room is no longer being used, it can be removed automatically, keeping the server organized and reducing unnecessary channels.
+The bot provides a temporary voice channel system where users can automatically receive their own voice rooms, helping keep Discord servers organized.
 
-The project also aims to provide a gameplay scheduling system, allowing users to organize gaming sessions, manage participants, and automatically create private voice channels for each gameplay.
+The project also includes a ticket management system and persistent data storage using MongoDB, allowing server configurations and system data to remain available even after the bot is restarted.
 
-The project is being developed with a modular architecture, allowing new commands and features to be added over time.
+Gameplay management is also being developed, allowing users to schedule gaming sessions, manage participants, and create private voice channels for each gameplay.
+
+The project follows a modular architecture, allowing new systems and commands to be added over time.
 
 ## Current Status
 
@@ -25,77 +27,62 @@ The repository is being built incrementally, with each branch representing a spe
 ### Implemented
 
 * Initial project structure
-* Basic Discord bot configuration
+* Discord bot configuration
 * Environment variable configuration
 * Command architecture
-* Temporary voice channel creation
-* Temporary voice channel deletion
-* Channel configuration
+* Temporary voice channel system
+* Server configuration system
 * Permission management
+* Ticket system
+* MongoDB database integration
+* Persistent server configuration
 
 ### In Development
 
-* Gameplay scheduling system
+* Command permissions
 
-### Planned
+## Main Features
 
-* Gameplay creation through commands
-* Gameplay information management
-* Gameplay announcements
-* Gameplay participant management
-* Private gameplay voice channels
-* Join and leave gameplay controls
-* Player limit management
-* Gameplay cancellation
-* Automatic gameplay channel management
-* Custom temporary channel names
-* User-specific channel controls
-* Help command
-* Additional server management features
+### Temporary Voice Channels
 
-## Gameplay Management
+The bot automatically creates and manages temporary voice channels for users, providing isolated rooms while they are being used.
+
+### Ticket System
+
+The ticket system allows server members to create support tickets through an interactive interface.
+
+Tickets are automatically organized using configured categories, with permissions managed to ensure that only authorized users can access each ticket.
+
+### Gameplay Management
 
 The gameplay management system will allow server members to organize gaming sessions directly through the bot.
 
-A user will be able to create a gameplay by providing information such as:
+Users will be able to provide:
 
 * Game name
 * Maximum number of players
 * Scheduled time
 
-The bot will then publish the gameplay in a channel configured specifically for gameplay announcements.
+The bot will publish the gameplay in a configured channel and create a private voice channel for the session.
 
-Each gameplay will have interactive controls allowing users to join or leave the session.
+Participants will be able to join or leave the gameplay through interactive controls. Users who join will automatically receive access to the corresponding private voice channel.
 
-When a user joins a gameplay, the bot will automatically grant them permission to access the private voice channel created for that session.
+The system will also manage the player limit and gameplay lifecycle.
 
-### Example
+### Database
 
-A gameplay could be created with the following information:
+The bot uses MongoDB to persist important system and server configuration data.
 
-```text
-Game: PEAK
-Players: 4
-Time: 22:00
-```
-
-The bot will publish the gameplay information in the configured channel and create a private voice channel for the session, for example:
-
-```text
-🔒・RafaelSales — PEAK
-```
-
-Users can join the gameplay through the available controls. Once they join, they automatically receive access to the corresponding private voice channel.
-
-The system will also keep track of the number of participants, preventing additional users from joining when the maximum player limit has been reached.
+Database storage allows configurations and information to remain available even after the bot is restarted.
 
 ## Tech Stack
 
-| Technology     | Purpose                           |
-| -------------- | --------------------------------- |
-| Java 17+       | Main programming language         |
-| JDA            | Discord API integration           |
-| Maven / Gradle | Build and dependency management   |
+| Technology     | Purpose                         |
+| -------------- | ------------------------------- |
+| Java 17+       | Main programming language       |
+| JDA            | Discord API integration         |
+| MongoDB        | Persistent data storage         |
+| Maven / Gradle | Build and dependency management |
 
 ## Configuration
 
@@ -106,9 +93,10 @@ Create a `.env` file in the project root:
 ```env
 DISCORD_TOKEN=your_bot_token_here
 PREFIX=your_bot_prefix_here
+MONGODB_URI=your_mongodb_connection_string
 ```
 
-Never commit your bot token or other sensitive credentials to the repository.
+Never commit your bot token, database credentials, or other sensitive information to the repository.
 
 ## Discord Intents
 
@@ -130,10 +118,12 @@ As new features are implemented, they will be developed in dedicated branches an
 
 * [x] Initial project configuration
 * [x] Command architecture
-* [x] Temporary voice channel creation
+* [x] Temporary voice channel system
+* [x] Server configuration system
+* [x] Permission management
+* [x] Ticket system
+* [x] MongoDB integration
+* [x] Persistent configuration
 * [x] Gameplay scheduling
-* [x] Gameplay announcements
-* [x] Private gameplay channels
-* [x] Join and leave gameplay controls
-* [x] Player limit management
-* [ ] commands permissions
+* [x] Gameplay participant management
+* [ ] Additional server management features
