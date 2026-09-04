@@ -4,7 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.javabot.Listeners.ButtonListener;
+import org.javabot.Listeners.ButtonListenerController;
 import org.javabot.Listeners.CommandListener;
 import org.javabot.Listeners.ModalListener;
 import org.javabot.Listeners.VoiceListener;
@@ -31,7 +31,7 @@ public class Main {
                 .addEventListeners(
                         new CommandListener(),
                         new VoiceListener(),
-                        new ButtonListener(),
+                        new ButtonListenerController(),
                         new ModalListener()
                 )
                 .build()
